@@ -35,7 +35,9 @@
 
       d3.json("data/countries_2012.json", function(error, data){
 
-        var columns = Object.keys(data[0]);
+        var columns = ["Name", "Continent", "GDP", "Life_Expectancy", "Population", "Year"]
+        // This is where I changed things!
+        Object.keys(data[0]);
 
         var table = d3.select("body").append("table"),
           thead = table.append("thead")
