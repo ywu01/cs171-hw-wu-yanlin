@@ -35,23 +35,27 @@
 
       d3.json("data/countries_2012.json", function(error, data){
 
-        var columns = ["Name", "Continent", "GDP", "Life_Expectancy", "Population", "Year"]
+        var columns = ["name", "continent", "gdp", "life_expectancy", "population", "year"]
         // This is where I changed things!
-        Object.keys(data[0]);
+        // Object.keys(data[0]);
 
+        // this is where d3 selects the body, and appends a table onto it. That table is made up of a thead and a tbody.
         var table = d3.select("body").append("table"),
           thead = table.append("thead")
                        .attr("class", "thead");
           tbody = table.append("tbody");
 
+        // title goes here. (Like, the actual title goes there.)
         table.append("caption")
           .html("World Countries Ranking");
 
+        // it appends to the table head whatever the name of the columns are. Name of the columns are established up there when a variable called "columns" is declared.
         thead.append("tr").selectAll("th")
           .data(columns)
         .enter()
           .append("th")
           .text(function(d) { return d; })
+          // this is the sort function by which you can sort things when you click on the table headers
           .on("click", function(header, i) {
             tbody.selectAll("tr").sort(function(a, b) {
               return d3.descending(a[header], b[header]);
@@ -63,10 +67,14 @@
           .enter()
           .append("tr").attr("class", "row");
 
+        // this part is important because it basically fills in the empty cells with info
         var cells = rows.selectAll("td")
           .data(function(row) {
-              return d3.range(Object.keys(row).length).map(function(column, i) {
-                  return row[Object.keys(row)[i]];
+              // Object.keys(row) is the number of keys shown in the json object
+              return d3.range(columns.length).map(function(column, i) {
+                // Object.keys(row)[i] is the NAME of the keys in the data file, not the data itself. The return thing is basically saying "find the info that matches the NAME of the key (i.e. if the name/category is 'continent', get the continent name) and return/put that into a cell."
+                // By putting "colums" instead of Object.key(row), we're using the names we specified for columns instead of the name of the keys. Which means that we can just get the specific info we want.
+                  return row[columns[i]];
               });
           })
           .enter()
