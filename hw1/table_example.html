@@ -26,51 +26,306 @@
     caption {
       font-size: 50px;
     }
+
+    tr:nth-child(even) {
+      background: #e4e4e4;
+    }
   </style>
 
 <meta charset="utf-8">
   <body>
+
+        <br><br>
+    <!-- Checkboxes -->
+        <form action="" style="text-align: center">
+        Filter by:
+        <label><input type="checkbox" name="Americas" value="Americas" onchange="myFunction(this.value)">Americas</input></label>
+        <label><input type="checkbox" name="Africa" value="Africa" onchange="myFunction(this.value)"></input>Africa</label>
+        <label><input type="checkbox" name="Asia" value="Asia" onchange="myFunction(this.value)">Asia</input></label>
+        <label><input type="checkbox" name="Europe" value="Europe" onchange="myFunction(this.value)">Europe</input></label>
+        <label><input type="checkbox" name="Oceania" value="Oceania" onchange="myFunction(this.value)">Oceania</input></label>
+
+        <br>
+
+        Aggregation:
+        <label>None<input type="radio" name="details" value="low" onclick=""></label>
+        <label>Continent<input type="radio" name="details" value="low" onclick=""></label>
+
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script>
 
+      var arr = {
+        Americas: false,
+        Africa: false,
+        Asia: false, 
+        Europe: false,
+        Oceania: false }
+        ;
+
+      // handles the continent toggles
+      function myFunction(val) {
+      if (val == "Americas") {
+          if (arr.Americas == true){ 
+            console.log('Americas is now false');
+            arr.Americas = false;
+          }
+          else if (arr.Americas == false){
+            console.log('Americas is now true');
+            arr.Americas = true;
+          }
+        }
+      if (val == "Africa") {
+          if (arr.Africa == true){ 
+            console.log('Africa is now false');
+            arr.Africa = false;
+          }
+          else if (arr.Africa == false){
+            console.log('Africa is now true');
+            arr.Africa = true;
+          }
+        }
+      if (val == "Asia") {
+          if (arr.Asia == true){ 
+            console.log('Asia is now false');
+            arr.Asia = false;
+          }
+          else if (arr.Asia == false){
+            console.log('Asia is now true');
+            arr.Asia = true;
+          }
+        }
+      if (val == "Europe") {
+          if (arr.Europe == true){ 
+            console.log('Europe is now false');
+            arr.Europe = false;
+          }
+          else if (arr.Europe == false){
+            console.log('Europe is now true');
+            arr.Europe = true;
+          }
+        }
+      if (val == "Oceania") {
+          if (arr.Oceania == true){ 
+            console.log('Oceania is now false');
+            arr.Oceania = false;
+          }
+          else if (arr.Oceania == false){
+            console.log('Oceania is now true');
+            arr.Oceania = true;
+          }
+        }
+      d3.select("table").remove();
       d3.json("data/countries_2012.json", function(error, data){
 
-        var columns = Object.keys(data[0]);
+        var columns = ["name", "continent", "gdp", "life_expectancy", "population", "year"];
+        // This is where I changed things!
+        // Object.keys(data[0]);
 
+        // this is where d3 selects the body, and appends a table onto it. That table is made up of a thead and a tbody.
         var table = d3.select("body").append("table"),
           thead = table.append("thead")
                        .attr("class", "thead");
           tbody = table.append("tbody");
 
+        // title goes here. (Like, the actual title goes there.)
         table.append("caption")
           .html("World Countries Ranking");
+
+        // it appends to the table head whatever the name of the columns are. Name of the columns are established up there when a variable called "columns" is declared.
 
         thead.append("tr").selectAll("th")
           .data(columns)
         .enter()
           .append("th")
           .text(function(d) { return d; })
-          .on("click", function(header, i) {
-            tbody.selectAll("tr").sort(function(a, b) {
-              return d3.descending(a[header], b[header]);
-            });
-          });
+          // this is the sort function by which you can sort things when you click on the table headers
 
+          // I tried...didn't work
+          /*
+              var sortOrder = false;
+              sortValues = function () {
+                sortOrder = !sortOrder;
+              
+              sortItems = function (header, i) {
+                tbody.selectAll("tr").sort(function(a, b) {
+                  if (sortOrder) {
+                      return d3.ascending(a[header], b[header]);
+                  }
+                  return d3.descending(a[header], b[header]);
+                })
+              };
+            }
+          */
+            .on("click", function(header, i) {
+            tbody.selectAll("tr").sort(function(a, b) {
+              return d3.ascending(a[header], b[header]);
+            });
+          });            
+
+
+          function filterData(element) {
+            if (arr.Americas == true && element.continent == "Americas") {
+                return true;
+            }
+            if (arr.Africa == true && element.continent == "Africa") {
+                return true;
+            }
+            if (arr.Asia == true && element.continent == "Asia") {
+                return true;
+            }
+            if (arr.Europe == true && element.continent == "Europe") {
+                return true;
+            }
+            if (arr.Oceania == true && element.continent == "Oceania") {
+                return true;
+            }
+            else if (!arr.Americas && !arr.Africa && !arr.Asia && !arr.Europe && !arr.Oceania) {
+                return true;
+            }
+            else {
+                return false;
+            }
+          }
+
+          var newData = data.filter(filterData);
+                  
+        // Original code below, starting at var
         var rows = tbody.selectAll("tr.row")
-          .data(data)
+          .data(newData)
           .enter()
           .append("tr").attr("class", "row");
-
+        
+        // this part is important because it basically fills in the empty cells with info
         var cells = rows.selectAll("td")
           .data(function(row) {
-              return d3.range(Object.keys(row).length).map(function(column, i) {
-                  return row[Object.keys(row)[i]];
+              // Object.keys(row) is the number of keys shown in the json object
+              return d3.range(columns.length).map(function(column, i) {
+                // columns.length is basically dictating how many blank cells are created in a row
+                // column, i is basically determining what information to put into those blank cells
+                  if (columns[i] == "gdp") {
+                    var rounder = d3.format(".2s");
+                    return rounder(row[columns[i]]);
+                  }
+                  else if (columns[i] == "life_expectancy") {
+                    return d3.round(row[columns[i]], 1);
+                  }
+                  else if (columns[i] == "population") {
+                    var commaer = d3.format(",");
+                    return commaer(row[columns[i]]);
+                  }
+                  return row[columns[i]];
               });
           })
           .enter()
           .append("td")
           .text(function(d) { return d; })
+      });
+      }
 
+      d3.json("data/countries_2012.json", function(error, data){
+
+        var columns = ["name", "continent", "gdp", "life_expectancy", "population", "year"];
+        // This is where I changed things!
+        // Object.keys(data[0]);
+
+        // this is where d3 selects the body, and appends a table onto it. That table is made up of a thead and a tbody.
+        var table = d3.select("body").append("table"),
+          thead = table.append("thead")
+                       .attr("class", "thead");
+          tbody = table.append("tbody");
+
+        // title goes here. (Like, the actual title goes there.)
+        table.append("caption")
+          .html("World Countries Ranking");
+
+        // it appends to the table head whatever the name of the columns are. Name of the columns are established up there when a variable called "columns" is declared.
+
+        thead.append("tr").selectAll("th")
+          .data(columns)
+        .enter()
+          .append("th")
+          .text(function(d) { return d; })
+          // this is the sort function by which you can sort things when you click on the table headers
+
+          // I tried...didn't work
+          /*
+              var sortOrder = false;
+              sortValues = function () {
+                sortOrder = !sortOrder;
+              
+              sortItems = function (header, i) {
+                tbody.selectAll("tr").sort(function(a, b) {
+                  if (sortOrder) {
+                      return d3.ascending(a[header], b[header]);
+                  }
+                  return d3.descending(a[header], b[header]);
+                })
+              };
+            }
+          */
+            .on("click", function(header, i) {
+            tbody.selectAll("tr").sort(function(a, b) {
+              return d3.ascending(a[header], b[header]);
+            });
+          });            
+
+
+          function filterData(element) {
+            if (arr.Americas == true && element.continent == "Americas") {
+                return true;
+            }
+            if (arr.Africa == true && element.continent == "Africa") {
+                return true;
+            }
+            if (arr.Asia == true && element.continent == "Asia") {
+                return true;
+            }
+            if (arr.Europe == true && element.continent == "Europe") {
+                return true;
+            }
+            if (arr.Oceania == true && element.continent == "Oceania") {
+                return true;
+            }
+            else if (!arr.Americas && !arr.Africa && !arr.Asia && !arr.Europe && !arr.Oceania) {
+                return true;
+            }
+            else {
+                return false;
+            }
+          }
+
+          var newData = data.filter(filterData);
+                  
+        // Original code below, starting at var
+        var rows = tbody.selectAll("tr.row")
+          .data(newData)
+          .enter()
+          .append("tr").attr("class", "row");
+        
+        // this part is important because it basically fills in the empty cells with info
+        var cells = rows.selectAll("td")
+          .data(function(row) {
+              // Object.keys(row) is the number of keys shown in the json object
+              return d3.range(columns.length).map(function(column, i) {
+                // columns.length is basically dictating how many blank cells are created in a row
+                // column, i is basically determining what information to put into those blank cells
+                  if (columns[i] == "gdp") {
+                    var rounder = d3.format(".2s");
+                    return rounder(row[columns[i]]);
+                  }
+                  else if (columns[i] == "life_expectancy") {
+                    return d3.round(row[columns[i]], 1);
+                  }
+                  else if (columns[i] == "population") {
+                    var commaer = d3.format(",");
+                    return commaer(row[columns[i]]);
+                  }
+                  return row[columns[i]];
+              });
+          })
+          .enter()
+          .append("td")
+          .text(function(d) { return d; })
       });
     </script> 
   </body>

@@ -42,23 +42,26 @@
 
   var scale = d3.scale.linear()
     .domain([0, 200])
-    .range([0, height]);
+    .range([0, width]);
 
   var color = d3.scale.linear()
-    .range(["green","red"])
+    .range(["orange","red"])
     .domain([0, 200]);
 
-  var rect = g.selectAll("rect")
+    var rect = g.selectAll("rect")
       .data(data)
     .enter().append("rect")
     .attr("fill", function(d, i) {
         return color(d);
     })
-    .attr("width", 100)
-    .attr("height", bar_height)
-    .attr("x", 50)
-    .attr("y", function(d, i) {
+    .attr("width", function(d, i) {
         return scale(d);
+    })
+    .attr("height", bar_height)
+    .attr("x", 0)
+    .attr("y", function(d, i) {
+        // this could instead use an ordinal scale and rangeRoundBands()
+        return (bar_height + 5) * i;
     });
 
   </script>
