@@ -73,6 +73,7 @@
     // to separate loading the json file from refreshing the table
     var jsonVariable;
 
+    // loading the data file
     d3.json("data/countries_1995_2012.json", function(error, data){
               jsonVariable = data;
               loadHTML(jsonVariable);
@@ -80,6 +81,73 @@
 
     // to set initial slider value
     var sliderValue = 1995;
+
+    // for the checkboxes
+    var arr = {
+        Americas: false,
+        Africa: false,
+        Asia: false, 
+        Europe: false,
+        Oceania: false 
+    };
+
+    // also for the checkboxes; this toggles the checkboxes. 
+    function myFunction(val) {
+        if (val == "Americas") {
+            if (arr.Americas == true){ 
+              console.log('Americas is now false');
+              arr.Americas = false;
+            }
+            else if (arr.Americas == false){
+              console.log('Americas is now true');
+              arr.Americas = true;
+            }
+          }
+        if (val == "Africa") {
+            if (arr.Africa == true){ 
+              console.log('Africa is now false');
+              arr.Africa = false;
+            }
+            else if (arr.Africa == false){
+              console.log('Africa is now true');
+              arr.Africa = true;
+            }
+          }
+        if (val == "Asia") {
+            if (arr.Asia == true){ 
+              console.log('Asia is now false');
+              arr.Asia = false;
+            }
+            else if (arr.Asia == false){
+              console.log('Asia is now true');
+              arr.Asia = true;
+            }
+          }
+        if (val == "Europe") {
+            if (arr.Europe == true){ 
+              console.log('Europe is now false');
+              arr.Europe = false;
+            }
+            else if (arr.Europe == false){
+              console.log('Europe is now true');
+              arr.Europe = true;
+            }
+          }
+        if (val == "Oceania") {
+            if (arr.Oceania == true){ 
+              console.log('Oceania is now false');
+              arr.Oceania = false;
+            }
+            else if (arr.Oceania == false){
+              console.log('Oceania is now true');
+              arr.Oceania = true;
+            }
+          }
+        d3.selectAll("rect").remove();
+        d3.selectAll("text").remove();
+        loadHTML(jsonVariable);
+        // aggregate();
+      }
 
     // for population/gdp/life_expectancy toggle
     var masterToggle = "population";
@@ -96,15 +164,42 @@
       console.log(sliderValue);
     }
 
-    // creating the table
-
+    // creating the barchart
     function loadHTML(data) {
 
         var countryWanted;
               
         var yearWanted = sliderValue;
 
-        function indexReturn() {
+        // filtering according to continent
+        function filterData(element) {
+                  if (arr.Americas == true && element.continent == "Americas") {
+                      return true;
+                  }
+                  if (arr.Africa == true && element.continent == "Africa") {
+                      return true;
+                  }
+                  if (arr.Asia == true && element.continent == "Asia") {
+                      return true;
+                  }
+                  if (arr.Europe == true && element.continent == "Europe") {
+                      return true;
+                  }
+                  if (arr.Oceania == true && element.continent == "Oceania") {
+                      return true;
+                  }
+                  else if (!arr.Americas && !arr.Africa && !arr.Asia && !arr.Europe && !arr.Oceania) {
+                      return true;
+                  }
+                  else {
+                      return false;
+                  }
+        }
+
+        var newData = data.filter(filterData);
+
+        // setting the index according to year, which will affect the bars as they load
+        function indexReturn(data) {
             for (var n = data.length - 1; n >= 0; n--) { 
                 // arrayNumber for the second loop is called n
                 // don't forget = and ==
@@ -112,9 +207,7 @@
                     console.log(arrayNumber);
                         for (var i = data[arrayNumber].years.length - 1; i >= 0; i--) {
                             if (data[arrayNumber].years[i].year == yearWanted){
-                                console.log(data[arrayNumber].years[i].year);
-                                console.log(yearWanted);
-                                // return (data[arrayNumber].years[i].population);
+                                console.log(i);
                                 return i;
                                 }
                         };
@@ -122,19 +215,18 @@
             };
         }
 
-        
-
+        // barcharts for population
         if (masterToggle == "population") {
-            var index = indexReturn();
-            var max = d3.max(data, function(d) { return d.years[index].population; } );
+            var index = indexReturn(newData);
+            var max = d3.max(newData, function(d) { return d.years[index].population; } );
             var min = 0;
 
             xScale.domain([min, max]);
-            yScale.domain(data.map(function(d) { return d.name; }));
+            yScale.domain(newData.map(function(d) { return d.name; }));
      
             var rows = g.append("g")
                         .selectAll("g.row")
-                        .data(data)
+                        .data(newData)
                       .enter()
                         .append("g")
                         .attr("class", "row")
@@ -155,17 +247,18 @@
                         .text(function(d) { return d.name })
         }
 
+        // barcharts for gdp
         if (masterToggle == "gdp") {
-            var index = indexReturn();
-            var max = d3.max(data, function(d) { return d.years[index].gdp; } );
+            var index = indexReturn(newData);
+            var max = d3.max(newData, function(d) { return d.years[index].gdp; } );
             var min = 0;
 
             xScale.domain([min, max]);
-            yScale.domain(data.map(function(d) { return d.name; }));
+            yScale.domain(newData.map(function(d) { return d.name; }));
      
             var rows = g.append("g")
                         .selectAll("g.row")
-                        .data(data)
+                        .data(newData)
                       .enter()
                         .append("g")
                         .attr("class", "row")
@@ -186,17 +279,18 @@
                         .text(function(d) { return d.name })    
         }
 
+        // barcharts for life expectancy
         if (masterToggle == "life_expectancy") {
-            var index = indexReturn();
-            var max = d3.max(data, function(d) { return d.years[index].life_expectancy; } );
+            var index = indexReturn(newData);
+            var max = d3.max(newData, function(d) { return d.years[index].life_expectancy; } );
             var min = 0;
 
             xScale.domain([min, max]);
-            yScale.domain(data.map(function(d) { return d.name; }));
+            yScale.domain(newData.map(function(d) { return d.name; }));
      
             var rows = g.append("g")
                         .selectAll("g.row")
-                        .data(data)
+                        .data(newData)
                       .enter()
                         .append("g")
                         .attr("class", "row")
@@ -219,8 +313,7 @@
 
     }
 
-        // for population/gdp/life_expectancy toggle
-
+        // population/gdp/life_expectancy toggles
         function togglePopulation(val){
             masterToggle = "population";
             d3.selectAll("rect").remove();

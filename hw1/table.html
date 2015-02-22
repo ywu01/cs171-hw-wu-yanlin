@@ -70,8 +70,8 @@
     var sliderValue = 1995;
 
     d3.select("#slider").on("input", function() {
-              update(this.value);
-              });
+        update(this.value);
+    });
         
             // as the name says, this function loads HTML with no input. Whenever loadHTML(); is written, the HTML is loaded (or reloaded)
             function update(year){
@@ -80,119 +80,88 @@
               loadHTML(jsonVariable);
             }
 
-            function loadHTML(data) {
+      function loadHTML(data) {
 
-              var countryWanted;
+        var countryWanted;
               
-              var yearWanted = sliderValue;
+        var yearWanted = sliderValue;
 
-              // probably can make a more concise function, but oh well
-              function populationReturn() {
-          
-                  for (var i = data.length - 1; i >= 0; i--) {
-                    // console.log(data[i]);
-
-                    if (data[i].name == countryWanted) {
-                      
+          // probably can make a more concise function, but oh well. To return population/gdp/LE
+          function populationReturn() {
+              for (var i = data.length - 1; i >= 0; i--) {
+                  if (data[i].name == countryWanted) {   
                       var arrayNumber = i; 
+                          for (var i = data[arrayNumber].years.length - 1; i >= 0; i--) {
+                              if (data[arrayNumber].years[i].year == yearWanted){
+                                return (data[arrayNumber].years[i].population);
+                                  }
+                          };
+                  }
+              };
+          }
 
-                      for (var i = data[arrayNumber].years.length - 1; i >= 0; i--) {
-                        // console.log(data[0].years[i].year);
-
-                        if (data[arrayNumber].years[i].year == yearWanted) {
-                          // basically at this point, you've locked onto the object you want. I mean, all the population/GDP/life expectancy info is in data[arrayNumber].years[i]. All you need to do to access those info points is to type data[arrayNumber].years[i].population (or whatever)
-                          
-                          return (data[arrayNumber].years[i].population);
-
-                          // wonderful. This returns to you the specific info points which you need to populate the psets; now you just need to figure out how to vary countryWanted and yearWanted
-                    }
-
-                  };
-                    }
-                  };
-              }
+          function gdpReturn() {
+              for (var i = data.length - 1; i >= 0; i--) {
+                  if (data[i].name == countryWanted) {   
+                      var arrayNumber = i; 
+                          for (var i = data[arrayNumber].years.length - 1; i >= 0; i--) {
+                              if (data[arrayNumber].years[i].year == yearWanted){
+                                return (data[arrayNumber].years[i].gdp);
+                                  }
+                          };
+                  }
+              };
+          }
               
-              function gdpReturn() {
-          
-                  for (var i = data.length - 1; i >= 0; i--) {
-                    // console.log(data[i]);
-
-                    if (data[i].name == countryWanted) {
-                      // when this happens, start searching for the more detailed info inside the years file
-                      // also, SAVE the i that you need so you can use it in the next for loop
+          function lifeExpectancyReturn() {
+              for (var i = data.length - 1; i >= 0; i--) {
+                  if (data[i].name == countryWanted) {   
                       var arrayNumber = i; 
+                          for (var i = data[arrayNumber].years.length - 1; i >= 0; i--) {
+                              if (data[arrayNumber].years[i].year == yearWanted){
+                                return (data[arrayNumber].years[i].life_expectancy);
+                                  }
+                          };
+                  }
+              };
+          }  
 
-                      for (var i = data[arrayNumber].years.length - 1; i >= 0; i--) {
-                        // console.log(data[0].years[i].year);
-                        
+          var columns = ["name", "continent", "gdp", "life_expectancy", "population", "year"];
 
-                        if (data[arrayNumber].years[i].year == yearWanted) {
-                          
-                          // basically at this point, you've locked onto the object you want. I mean, all the population/GDP/life expectancy info is in data[arrayNumber].years[i]. All you need to do to access those info points is to type data[arrayNumber].years[i].population (or whatever)
+          // this is where d3 selects the body, and appends a table onto it. That table is made up of a thead and a tbody.
+          var table = d3.select("body").append("table"),
+            thead = table.append("thead")
+                         .attr("class", "thead");
+            tbody = table.append("tbody");
 
-                          return (data[arrayNumber].years[i].gdp);
-                          
-                          // wonderful. This returns to you the specific info points which you need to populate the psets; now you just need to figure out how to vary countryWanted and yearWanted
-                    }
+          table.append("caption")
+          .html("World Countries Ranking");
 
-                  };
-                    }
-                  };
-              }
-
-              function lifeExpectancyReturn() {
-          
-                  for (var i = data.length - 1; i >= 0; i--) {
-                    // console.log(data[i]);
-
-                    if (data[i].name == countryWanted) {
-
-                      // when this happens, start searching for the more detailed info inside the years file
-                      // also, SAVE the i that you need so you can use it in the next for loop
-                      var arrayNumber = i; 
-
-                      for (var i = data[arrayNumber].years.length - 1; i >= 0; i--) {
-                        // console.log(data[0].years[i].year);
-
-                        if (data[arrayNumber].years[i].year == yearWanted) {
-                          // basically at this point, you've locked onto the object you want. I mean, all the population/GDP/life expectancy info is in data[arrayNumber].years[i]. All you need to do to access those info points is to type data[arrayNumber].years[i].population (or whatever)
-                          
-                          return (data[arrayNumber].years[i].life_expectancy);
-
-                          // wonderful. This returns to you the specific info points which you need to populate the psets; now you just need to figure out how to vary countryWanted and yearWanted
-                    }
-
-                  };
-                    }
-                  };
-              }
-
-              var columns = ["name", "continent", "gdp", "life_expectancy", "population", "year"];
-
-              // this is where d3 selects the body, and appends a table onto it. That table is made up of a thead and a tbody.
-              var table = d3.select("body").append("table"),
-                thead = table.append("thead")
-                             .attr("class", "thead");
-                tbody = table.append("tbody");
-
-              // title goes here. (Like, the actual title goes there.)
-              table.append("caption")
-                .html("World Countries Ranking");
-
-              // it appends to the table head whatever the name of the columns are. Name of the columns are established up there when a variable called "columns" is declared.
-
-              thead.append("tr").selectAll("th")
-                .data(columns)
-              .enter()
+          thead.append("tr").selectAll("th")
+             .data(columns)
+             .enter()
                 .append("th")
                 .text(function(d) { return d; })
 
-                  .on("click", function(header, i) {
+                .on("click", function(header, i) {
                   tbody.selectAll("tr").sort(function(a, b) {
-                    console.log('works');
-                    return d3.ascending(a[header], b[header]);
+                    if (header == "gdp" && aggToggle == false) {
+                      // console.log(a.years[sliderValue - 1995].gdp);
+                      return d3.descending(a.years[sliderValue - 1995].gdp, b.years[sliderValue - 1995].gdp);
+                    }
+                    if (header == "population" && aggToggle == false) {
+                      // console.log(a.years[sliderValue - 1995].population);
+                      return d3.descending(a.years[sliderValue - 1995].population, b.years[sliderValue - 1995].population);
+                    }
+                    if (header == "life_expectancy" && aggToggle == false) {
+                      // console.log(a.years[sliderValue - 1995].life_expectancy);
+                      return d3.descending(a.years[sliderValue - 1995].life_expectancy, b.years[sliderValue - 1995].life_expectancy);
+                    }
+                    else {
+                      return d3.ascending(a[header], b[header]);
+                    } 
                   });
-                });            
+                });          
 
               function filterData(element) {
                   if (arr.Americas == true && element.continent == "Americas") {
@@ -222,6 +191,7 @@
 
                 var aggregatedData;
 
+                // as the name says, to aggregate
                 function aggregate() {
                     var nested_rows = d3.nest()
                     .key(function(d) { return d.continent; })
@@ -416,7 +386,7 @@
       };
 
       // handles the continent checkboxes
-    function myFunction(val) {
+      function myFunction(val) {
         if (val == "Americas") {
             if (arr.Americas == true){ 
               console.log('Americas is now false');
@@ -472,8 +442,7 @@
         // aggregate();
       }
 
-
-    console.log('a checkpoint to see if you have reached line 243');
+      console.log('a checkpoint to see if you have reached line 243');
 
     </script> 
   </body>
