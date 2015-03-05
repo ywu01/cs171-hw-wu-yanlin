@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+  <style type="text/css">
+    body {
+      width: 800px;
+      margin: 25px auto;
+      font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    }
+    circle {
+      fill: steelblue;
+      stroke: #fff;
+      stroke-width: 1;
+    }
+    .link {
+      stroke: #999;
+      stroke-opacity: .6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Section 3: Exploring positional data encoding</h1>
+    <form>
+      <label><input type="radio" name="layout" value="fullCircle" checked> Complete Circle </label>
+      <label><input type="radio" name="layout" value="horizontalGrouping"> Horizontal Grouping </label>
+      <label><input type="radio" name="layout" value="pieGrouping"> Pie Grouping </label>
+    </form>
+
+  <script type="text/javascript">
+
+  var margin = {top: 40, bottom: 10, left: 20, right: 20};
+  var width = 800 - margin.left - margin.right;
+  var height = 600 - margin.top - margin.bottom;
+
+  var nodes = [],
+    foci = [{x: 150, y: 300}, {x: 275, y: 300}, {x: 400, y: 300}, {x: 525, y: 300}, {x: 650, y: 300}];
+
+  // Creates sources <svg> element and inner g (for margins)
+  var svg = d3.select("body").append("svg")
+              .attr("width", width+margin.left+margin.right)
+              .attr("height", height+margin.top+margin.bottom)
+            .append("g")
+              .attr("transform", "translate("+margin.left+","+margin.top+")");
+
+  /////////////////////////
+
+  var force = d3.layout.force()
+      .charge(-70)
+      .friction(0.95)
+      .size([width, height]);
+
+  d3.json("data/countries_2012.json", function(data) {
+
+    // data join
+    var node = svg.selectAll(".node")
+        .data(data)
+        .enter()
+        .append("g").attr("class", "node")
+
+    node
+      .append("circle")
+      .attr("r", 5)
+
+    node
+      .append("text")
+      .attr("font-size", 10)
+      .text(function(d) { return d.name })
+
+    function normalForce() {
+      force
+        .nodes(data)
+        .links([])
+        .start()
+        .on("tick", normalTick);
+    }
+
+    function horizontalForce() {
+      force
+        .nodes(data)
+        .links([])
+        .start()
+        .on("tick", tick);
+    }
+
+    function normalTick(e) {
+
+        var k = 0.2 * e.alpha;
+
+        svg.selectAll("circle")
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+
+        svg.selectAll("text")
+        .attr("x", function(d) { return d.x; })
+        .attr("y", function(d) { return d.y; });    
+      }
+
+    function tick(e) {
+
+        // the next line, var k = 0.1 * e.alpha, determines how tightly the nodes of a specific category are bunched together. The lower it is, the more loosely something seems to be bunched. 
+        var k = 0.2 * e.alpha;
+
+        // console.log("check check");
+        
+        // applies a custom force alternating between pushing nodes towards one of the four corners
+        data.forEach(function(o, i) {
+
+          console.log("yayy you made it");
+
+          if (o.continent == "Asia") {   
+            // or should it be o.continent?
+            // console.log("check two");
+            o.y += (foci[0].y - o.y) * k;
+            // array object zero should be asia coordinates
+            o.x += (foci[0].x - o.x) * k;
+          }
+          
+          if (o.continent == "Americas") { 
+            o.y += (foci[1].y - o.y) * k;
+            o.x += (foci[1].x - o.x) * k;
+          }
+
+          if (o.continent == "Africa") { 
+            o.y += (foci[2].y - o.y) * k;
+            o.x += (foci[2].x - o.x) * k;
+          }
+
+          if (o.continent == "Europe") { 
+            o.y += (foci[3].y - o.y) * k;
+            o.x += (foci[3].x - o.x) * k;
+          }
+
+          if (o.continent == "Oceania") { 
+            o.y += (foci[4].y - o.y) * k;
+            o.x += (foci[4].x - o.x) * k;
+          }
+        });
+
+        svg.selectAll("circle")
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+
+        svg.selectAll("text")
+        .attr("x", function(d) { return d.x; })
+        .attr("y", function(d) { return d.y; });    
+      }
+      // end of tick function
+
+      // to start off with a normal circle 
+      normalForce(); 
+
+      // running functions upon the checking of radio buttons
+      d3.select("input[value=\"fullCircle\"]").on("click", normalForce);
+
+      d3.select("input[value=\"horizontalGrouping\"]").on("click", horizontalForce);
+  });
+
+  </script>
+</body>
+</html>

@@ -107,7 +107,7 @@ function line_layout() {
   force.stop();
 
   graph.nodes.forEach(function(d, i) {
-    d.y = height/2;
+    d.x = height/2;
   })
 
   graph_update(500);
@@ -180,6 +180,7 @@ function graph_update(duration) {
 
   node.transition().duration(duration)
       .attr("transform", function(d) { 
+        console.log(d);
         return "translate("+d.x+","+d.y+")"; 
       });
 }

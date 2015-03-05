@@ -42,6 +42,16 @@
       .linkDistance(30)
       .size([width, height]);
 
+  d3.json("charactersTest.json", function(error, data){
+              jsonVariable = data;
+              filterJSON(jsonVariable);
+            });
+
+  function filterJSON(data) {
+    
+    
+  } 
+
   d3.json("characters.json", function(data) {
 
     // Nodes data join
