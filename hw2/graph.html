@@ -2,11 +2,13 @@
 <html>
 <head>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
   <style type="text/css">
     body {
       width: 800px;
       margin: 25px auto;
-      font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+      font-family: 'Lato', sans-serif;
+      text-align: center;
     }
     circle {
       fill: steelblue;
@@ -20,11 +22,12 @@
   </style>
 </head>
 <body>
-  <h1>Section 3: Exploring positional data encoding</h1>
+  <h1>Section 3: Exploring positional data encoding, part two</h1>
     <form>
       <label><input type="radio" name="layout" value="fullCircle" checked> Complete Circle </label>
       <label><input type="radio" name="layout" value="horizontalGrouping"> Horizontal Grouping </label>
-      <label><input type="radio" name="layout" value="pieGrouping"> Pie Grouping </label>
+      <label><input type="radio" name="layout" value="pieGrouping"> A Not-really-working Foci Pie </label>
+      <label><input type="radio" name="layout" value="circularLayout"> Circular Layout </label>
     </form>
 
   <script type="text/javascript">
@@ -35,6 +38,7 @@
 
   var nodes = [],
     foci = [{x: 150, y: 300}, {x: 275, y: 300}, {x: 400, y: 300}, {x: 525, y: 300}, {x: 650, y: 300}];
+    fociPie = [{x: 100, y: 100}, {x: 200, y: 200}, {x: 300, y: 300}, {x: 400, y: 400}, {x: 650, y: 300}];
 
   // Creates sources <svg> element and inner g (for margins)
   var svg = d3.select("body").append("svg")
@@ -81,6 +85,14 @@
         .links([])
         .start()
         .on("tick", tick);
+    }
+
+    function pieForce() {
+      force
+        .nodes(data)
+        .links([])
+        .start()
+        .on("tick", pie);
     }
 
     function normalTick(e) {
@@ -147,6 +159,102 @@
       }
       // end of tick function
 
+      // The if statements can sort stuff out via. continent, but overall, this doesn't really work. What I DO need to do is to figure out how to work d3.layout.pie in order to obtain the correct foci of the separate continent blobs. 
+      function pie(e) {
+
+        var k = 0.2 * e.alpha;
+
+        // console.log("check check");
+        
+        // applies a custom force alternating between pushing nodes towards one of the four corners
+        data.forEach(function(o, i) {
+
+          console.log("yayy you made it");
+
+          if (o.continent == "Asia") { 
+            // or should it be o.continent?
+            // console.log("check two");
+            o.y += (fociPie[0].y - o.y) * k;
+            // array object zero should be asia coordinates
+            o.x += (fociPie[0].x - o.x) * k;
+          }
+
+          // I'm thinking that, to make the separate circles, you're going to basically filter the set of data for each continent and for each separate set of data, you're going to run the circle function. You also set different focus points for each of the circles. I've got the focus point thing done here; what next? 
+          
+          /*
+          if (o.continent == "Americas") { 
+            o.y += (fociPie[1].y - o.y) * k;
+            o.x += (fociPie[1].x - o.x) * k;
+          }
+
+          if (o.continent == "Africa") { 
+            o.y += (fociPie[2].y - o.y) * k;
+            o.x += (fociPie[2].x - o.x) * k;
+          }
+
+          if (o.continent == "Europe") { 
+            o.y += (fociPie[3].y - o.y) * k;
+            o.x += (fociPie[3].x - o.x) * k;
+          }
+
+          if (o.continent == "Oceania") { 
+            o.y += (fociPie[4].y - o.y) * k;
+            o.x += (fociPie[4].x - o.x) * k;
+          }
+          */
+        });
+
+        svg.selectAll("circle")
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+
+        svg.selectAll("text")
+        .attr("x", function(d) { return d.x; })
+        .attr("y", function(d) { return d.y; });    
+      }
+      // end of tick function
+
+
+      function circular_layout() {
+
+        force.stop();
+
+        var r = Math.min(height, width);
+
+        var arc = d3.svg.arc()
+                .outerRadius(r);
+
+        var pie = d3.layout.pie()
+                .sort(function(a, b) { return a.cat - b.cat;}) // Sorting by categories
+                .value(function(d, i) { 
+                  // it's fun to experiment with this here: return i for different spacing in each, and return 1 for even spacing
+                  return 1;  // We want an equal pie share/slice for each point
+                });
+
+        // try using data.nodes, or just data
+        placeholder = pie(data).map(function(d, i) {
+          // Needed to caclulate the centroid
+          d.innerRadius = 0;
+          d.outerRadius = r;
+
+          // Building the data object we are going to return
+          d.data.x = arc.centroid(d)[0]+width/2;
+          d.data.y = arc.centroid(d)[1]+height/2;
+
+        svg.selectAll("circle")
+        // you can mess around with the duration if you want to; it's quite fun. My personal favorites are 900 and 2500 for the circle movement transitions
+        .transition().duration(1500)
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+
+        svg.selectAll("text")
+        .transition().duration(1500)
+        .attr("x", function(d) { return d.x; })
+        .attr("y", function(d) { return d.y; });  
+        })
+      }
+    // end of experimental circular portion
+
       // to start off with a normal circle 
       normalForce(); 
 
@@ -154,6 +262,10 @@
       d3.select("input[value=\"fullCircle\"]").on("click", normalForce);
 
       d3.select("input[value=\"horizontalGrouping\"]").on("click", horizontalForce);
+
+      d3.select("input[value=\"pieGrouping\"]").on("click", pieForce);
+
+      d3.select("input[value=\"circularLayout\"]").on("click", circular_layout);
   });
 
   </script>
