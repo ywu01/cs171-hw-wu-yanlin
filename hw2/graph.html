@@ -10,6 +10,9 @@
       font-family: 'Lato', sans-serif;
       text-align: center;
     }
+    h1 {
+      font-size: 40px;
+    }
     circle {
       fill: steelblue;
       stroke: #fff;
@@ -22,19 +25,28 @@
   </style>
 </head>
 <body>
-  <h1>Section 3: Exploring positional data encoding, part two</h1>
+  <h1>Section 3: Exploring positional data encoding</h1>
+    <form> 
+      <label><input type="radio" name="layout" value="default" checked> Default </label>
+      <label><input type="radio" name="layout" value="population"> Show by Population and GDP </label>
+      <label><input type="radio" name="layout" value="gdp"> Show by GDP and Population </label>
+      <label><input type="radio" name="layout" value="life_expectancy"> Life Expectancy and GDP </label> 
+      <label><input type="radio" name="layout" value="latlong"> Latitude and Longitude </label> 
+      <label><input type="radio" name="layout" value="singlePoint"> Single Point </label> 
+    </form>
     <form>
       <label><input type="radio" name="layout" value="fullCircle" checked> Complete Circle </label>
       <label><input type="radio" name="layout" value="horizontalGrouping"> Horizontal Grouping </label>
       <label><input type="radio" name="layout" value="pieGrouping"> A Not-really-working Foci Pie </label>
       <label><input type="radio" name="layout" value="circularLayout"> Circular Layout </label>
+      <label><input type="radio" name="layout" value="miniCircles">  Small Circles </label>
     </form>
 
   <script type="text/javascript">
 
   var margin = {top: 40, bottom: 10, left: 20, right: 20};
   var width = 800 - margin.left - margin.right;
-  var height = 600 - margin.top - margin.bottom;
+  var height = 800 - margin.top - margin.bottom;
 
   var nodes = [],
     foci = [{x: 150, y: 300}, {x: 275, y: 300}, {x: 400, y: 300}, {x: 525, y: 300}, {x: 650, y: 300}];
@@ -71,6 +83,137 @@
       .attr("font-size", 10)
       .text(function(d) { return d.name })
 
+// PART ONE FUNCTIONS START HERE
+    function showByDefault() {
+      force.stop();
+
+        svg.selectAll("circle")
+        .transition().duration(1500)
+        .attr("cy", function(d,i){
+          return i*10;
+        })
+
+        svg.selectAll("text")
+        .transition().duration(1500)
+        .attr("y", function(d,i){
+          return i*10;
+        })
+      }
+
+    function showByPopulationAndGDP() {
+      force.stop();
+
+        svg.selectAll("circle")
+        .transition().duration(1500)
+        .attr("cx", function(d) {
+          return d.gdp/100000000;
+        })
+        .attr("cy", function(d,i){
+          return d.population/100000;
+        })
+
+        svg.selectAll("text")
+        .transition().duration(1500)
+        .attr("x", function(d) {
+          return d.gdp/100000000 + 10;
+        })
+        .attr("y", function(d,i){
+          return d.population/100000;
+        })
+      }
+
+    function showByGDPAndPopulation() {
+      force.stop();
+
+        svg.selectAll("circle")
+        .transition().duration(1500)
+        .attr("cx", function(d,i){
+          return d.population/100000;
+        })
+        .attr("cy", function(d,i){
+          return d.gdp/100000000;
+        })
+
+        svg.selectAll("text")
+        .transition().duration(1500)
+        .attr("x", function(d,i){
+          return d.population/100000 + 10;
+        })
+        .attr("y", function(d,i){
+          return d.gdp/100000000;
+        })
+      }
+
+    function showByLifeExpectancyAndGDP() {
+      force.stop();
+
+      svg.selectAll("circle")
+        .transition().duration(1500)
+      .attr("cx", function(d) {
+          return d.gdp/100000000;
+        })
+      .attr("cy", function(d,i){
+        return d.life_expectancy*10 - 500;
+      })
+
+      svg.selectAll("text")
+        .transition().duration(1500)
+      .attr("x", function(d) {
+          return d.gdp/100000000 + 10;
+        })
+      .attr("y", function(d,i){
+        return d.life_expectancy*10 - 500;
+      })
+    }
+
+    function showByLatAndLong() {
+      force.stop();
+
+      svg.selectAll("circle")
+        .transition().duration(1500)
+      .attr("cx", function(d) {
+          return d.longitude + 180;
+        })
+      .attr("cy", function(d,i){
+          return d.latitude + 180;
+        })
+
+      svg.selectAll("text")
+        .transition().duration(1500)
+      .attr("x", function(d) {
+          return d.longitude + 180 + 10;
+        })
+      .attr("y", function(d,i){
+          return d.latitude + 180;
+        })
+    }
+
+    function singlePoint() {
+      force.stop();
+
+      svg.selectAll("circle")
+        .transition().duration(1500)
+      .attr("cx", function(d) {
+          return width/2;
+          // return 0;
+        })
+      .attr("cy", function(d,i){
+          return height/10;
+          // return 0 + 1500;
+        })
+
+      svg.selectAll("text")
+        .transition().duration(1500)
+      .attr("x", function(d) {
+          return width/2 + 10;
+        })
+      .attr("y", function(d,i){
+          return height/10;
+        })
+    }
+// PART ONE FUNCTIONS END HERE
+
+// PART TWO FUNCTIONS, BEGIN!
     function normalForce() {
       force
         .nodes(data)
@@ -169,8 +312,6 @@
         // applies a custom force alternating between pushing nodes towards one of the four corners
         data.forEach(function(o, i) {
 
-          console.log("yayy you made it");
-
           if (o.continent == "Asia") { 
             // or should it be o.continent?
             // console.log("check two");
@@ -179,29 +320,6 @@
             o.x += (fociPie[0].x - o.x) * k;
           }
 
-          // I'm thinking that, to make the separate circles, you're going to basically filter the set of data for each continent and for each separate set of data, you're going to run the circle function. You also set different focus points for each of the circles. I've got the focus point thing done here; what next? 
-          
-          /*
-          if (o.continent == "Americas") { 
-            o.y += (fociPie[1].y - o.y) * k;
-            o.x += (fociPie[1].x - o.x) * k;
-          }
-
-          if (o.continent == "Africa") { 
-            o.y += (fociPie[2].y - o.y) * k;
-            o.x += (fociPie[2].x - o.x) * k;
-          }
-
-          if (o.continent == "Europe") { 
-            o.y += (fociPie[3].y - o.y) * k;
-            o.x += (fociPie[3].x - o.x) * k;
-          }
-
-          if (o.continent == "Oceania") { 
-            o.y += (fociPie[4].y - o.y) * k;
-            o.x += (fociPie[4].x - o.x) * k;
-          }
-          */
         });
 
         svg.selectAll("circle")
@@ -219,7 +337,7 @@
 
         force.stop();
 
-        var r = Math.min(height, width);
+        var r = Math.min(height/1.5, width/1.5);
 
         var arc = d3.svg.arc()
                 .outerRadius(r);
@@ -229,7 +347,7 @@
                 .value(function(d, i) { 
                   // it's fun to experiment with this here: return i for different spacing in each, and return 1 for even spacing
                   return 1;  // We want an equal pie share/slice for each point
-                });
+                }); 
 
         // try using data.nodes, or just data
         placeholder = pie(data).map(function(d, i) {
@@ -239,11 +357,12 @@
 
           // Building the data object we are going to return
           d.data.x = arc.centroid(d)[0]+width/2;
+          // ohhhhhh so I suppose that +width/2 is the x coordinate of the center of the circle
           d.data.y = arc.centroid(d)[1]+height/2;
 
         svg.selectAll("circle")
         // you can mess around with the duration if you want to; it's quite fun. My personal favorites are 900 and 2500 for the circle movement transitions
-        .transition().duration(1500)
+        .transition().duration(1300)
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
 
@@ -255,8 +374,115 @@
       }
     // end of experimental circular portion
 
+    function mini_Circles() {
+
+        force.stop();
+
+        var r = Math.min(height/3.5, width/3.5);
+
+        var arc = d3.svg.arc()
+                .outerRadius(r);
+
+        var pie = d3.layout.pie()
+                .sort(function(a, b) { return a.cat - b.cat;}) // Sorting by categories
+                .value(function(d, i) { 
+                  return 1;  // We want an equal pie share/slice for each point
+                });
+
+        var AsiaArray = [];
+        var AfricaArray = [];
+        var AmericasArray = [];
+        var EuropeArray = [];
+        var OceaniaArray = [];
+
+        data.forEach(function(o, i) {
+
+          if (o.continent == "Asia") {   
+            AsiaArray.push(data[i]);
+          }
+          //console.log(AsiaArray);
+          if (o.continent == "Africa") {   
+            AfricaArray.push(data[i]);
+          }
+          if (o.continent == "Americas") {   
+            AmericasArray.push(data[i]);
+          }
+          if (o.continent == "Europe") {   
+            EuropeArray.push(data[i]);
+          }
+          if (o.continent == "Oceania") {   
+            OceaniaArray.push(data[i]);
+          }
+        });   
+
+        makeSmallCircles(AsiaArray);
+        makeSmallCircles(AmericasArray);
+        makeSmallCircles(AfricaArray);
+        makeSmallCircles(EuropeArray);
+        makeSmallCircles(OceaniaArray);
+
+        function makeSmallCircles(continentArray) {
+          // try using data.nodes, or just data
+          placeholder = pie(continentArray).map(function(d, i) {
+              // Needed to caclulate the centroid
+              d.innerRadius = 0;
+              d.outerRadius = r;
+
+            if (continentArray[0].continent == "Asia") {
+              d.data.x = arc.centroid(d)[0]+width/2;
+              d.data.y = arc.centroid(d)[1]+150;
+            }
+
+            else if (continentArray[0].continent == "Africa") {
+              d.data.x = arc.centroid(d)[0]+width/2;
+              d.data.y = arc.centroid(d)[1]+650;
+            }
+
+            else if (continentArray[0].continent == "Americas") {
+              d.data.x = arc.centroid(d)[0]+150;
+              d.data.y = arc.centroid(d)[1]+height/2;
+            }
+
+            else if (continentArray[0].continent == "Europe") {
+              d.data.x = arc.centroid(d)[0]+650;
+              d.data.y = arc.centroid(d)[1]+height/2;
+            }
+
+            else if (continentArray[0].continent == "Oceania") {
+              d.data.x = arc.centroid(d)[0]+width/2;
+              d.data.y = arc.centroid(d)[1]+height/2;
+            }
+
+            svg.selectAll("circle")
+
+            .transition().duration(1300)
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+
+            svg.selectAll("text")
+            .transition().duration(1500)
+            .attr("x", function(d) { return d.x; })
+            .attr("y", function(d) { return d.y; });  
+            });
+          }
+
+        }
+
+
       // to start off with a normal circle 
       normalForce(); 
+
+      d3.select("input[value=\"default\"]").on("click", showByDefault);
+
+      d3.select("input[value=\"population\"]").on("click", showByPopulationAndGDP);
+
+      d3.select("input[value=\"gdp\"]").on("click", showByGDPAndPopulation);
+
+      d3.select("input[value=\"life_expectancy\"]").on("click", showByLifeExpectancyAndGDP);
+
+      d3.select("input[value=\"latlong\"]").on("click", showByLatAndLong);
+
+      d3.select("input[value=\"singlePoint\"]").on("click", singlePoint);
 
       // running functions upon the checking of radio buttons
       d3.select("input[value=\"fullCircle\"]").on("click", normalForce);
@@ -266,6 +492,8 @@
       d3.select("input[value=\"pieGrouping\"]").on("click", pieForce);
 
       d3.select("input[value=\"circularLayout\"]").on("click", circular_layout);
+
+      d3.select("input[value=\"miniCircles\"]").on("click", mini_Circles);
   });
 
   </script>
