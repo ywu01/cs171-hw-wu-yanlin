@@ -70,6 +70,9 @@ graph.nodes.forEach(function(d, i) {
   })
 })
 
+console.loog("this is graph links");
+console.log(graph.nodes);
+
 // Generate the force layout
 var force = d3.layout.force()
     .size([width, height])
@@ -180,7 +183,6 @@ function graph_update(duration) {
 
   node.transition().duration(duration)
       .attr("transform", function(d) { 
-        console.log(d);
         return "translate("+d.x+","+d.y+")"; 
       });
 }
