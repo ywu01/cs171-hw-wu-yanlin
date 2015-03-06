@@ -73,7 +73,7 @@
       .friction(0.95)
       .size([width, height]);
 
-  d3.json("data/countries_1995_2012.json", function(data) {
+  d3.json("data/countries_2012.json", function(data) {
 
     // data join
     var node = svg.selectAll(".node")
@@ -89,16 +89,6 @@
       .append("text")
       .attr("font-size", 10)
       .text(function(d) { return d.name })
-
-    // Links data join
-    var link = svg.selectAll(".link")
-        .data(data);
-
-    link
-      .enter().append("line");
-
-    link
-        .attr("class", "link");
 
 // PART ONE FUNCTIONS START HERE
     function showByDefault() {
@@ -123,19 +113,19 @@
         svg.selectAll("circle")
         .transition().duration(1500)
         .attr("cx", function(d) {
-          return d.years[17].gdp/100000000;
+          return d.gdp/100000000;
         })
         .attr("cy", function(d,i){
-          return d.years[17].population/100000;
+          return d.population/100000;
         })
 
         svg.selectAll("text")
         .transition().duration(1500)
         .attr("x", function(d) {
-          return d.years[17].gdp/100000000 + 10;
+          return d.gdp/100000000 + 10;
         })
         .attr("y", function(d,i){
-          return d.years[17].population/100000;
+          return d.population/100000;
         })
       }
 
@@ -145,42 +135,41 @@
         svg.selectAll("circle")
         .transition().duration(1500)
         .attr("cx", function(d,i){
-          return d.years[17].population/100000;
+          return d.population/100000;
         })
         .attr("cy", function(d,i){
-          return d.years[17].gdp/100000000;
+          return d.gdp/100000000;
         })
 
         svg.selectAll("text")
         .transition().duration(1500)
         .attr("x", function(d,i){
-          return d.years[17].population/100000 + 10;
+          return d.population/100000 + 10;
         })
         .attr("y", function(d,i){
-          return d.years[17].gdp/100000000;
+          return d.gdp/100000000;
         })
       }
 
-    // doesn't work because life expectancy isn't life expectancy anymore
     function showByLifeExpectancyAndGDP() {
       force.stop();
 
       svg.selectAll("circle")
         .transition().duration(1500)
-      .attr("cx", function(d,i) {
-          return d.years[17].gdp/100000000;
+      .attr("cx", function(d) {
+          return d.gdp/100000000;
         })
       .attr("cy", function(d,i){
-        return d.years[17].life_expectancy*10 - 500;
+        return d.life_expectancy*10 - 500;
       })
 
       svg.selectAll("text")
         .transition().duration(1500)
-      .attr("x", function(d,i) {
-          return d.years[17].gdp/100000000 + 10;
+      .attr("x", function(d) {
+          return d.gdp/100000000 + 10;
         })
       .attr("y", function(d,i){
-        return d.years[17].life_expectancy*10 - 500;
+        return d.life_expectancy*10 - 500;
       })
     }
 
@@ -258,11 +247,6 @@
 
     function normalTick(e) {
 
-      link.attr("x1", function(d) { return d.x; })
-        .attr("y1", function(d) { return d.y; })
-        .attr("x2", function(d) { return d.x; })
-        .attr("y2", function(d) { return d.y; });
-
         var k = 0.2 * e.alpha;
 
         svg.selectAll("circle")
@@ -276,6 +260,7 @@
 
     function tick(e) {
 
+        // the next line, var k = 0.1 * e.alpha, determines how tightly the nodes of a specific category are bunched together. The lower it is, the more loosely something seems to be bunched. 
         var k = 0.2 * e.alpha;
 
         // console.log("check check");
@@ -324,6 +309,7 @@
       }
       // end of tick function
 
+      // The if statements can sort stuff out via. continent, but overall, this doesn't really work. What I DO need to do is to figure out how to work d3.layout.pie in order to obtain the correct foci of the separate continent blobs. 
       function pie(e) {
 
         var k = 0.2 * e.alpha;

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+  <style type="text/css">
+    body {
+      width: 800px;
+      margin: 25px auto;
+      font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    }
+    circle {
+      fill: steelblue;
+      fill-opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>Section 3: Exploring positional data encoding</h1>
+<!--
+<select>
+  <option value="default" onchange="showByDefault()" selected>Default</option>
+  <option value="population" onchange="showByPopulation()">Population</option>
+</select>
+-->
+
+    <form>
+    Layout:
+      <label><input type="radio" name="layout" value="default" checked> Default </label>
+      <label><input type="radio" name="layout" value="population"> Population </label>
+      <label><input type="radio" name="layout" value="gdp"> GDP </label>
+      <label><input type="radio" name="layout" value="life_expectancy"> Life Expectancy </label> 
+    </form>
+
+  <script type="text/javascript">
+
+  var margin = {top: 40, bottom: 10, left: 20, right: 20};
+  var width = 800 - margin.left - margin.right;
+  var height = 1500 - margin.top - margin.bottom;
+
+  // Creates sources <svg> element and inner g (for margins)
+  var svg = d3.select("body").append("svg")
+              .attr("width", width+margin.left+margin.right)
+              .attr("height", height+margin.top+margin.bottom)
+            .append("g")
+              .attr("transform", "translate("+margin.left+","+margin.top+")");
+
+  /////////////////////////
+
+  d3.json("data/countries_2012.json", function(data) {
+
+    // Nodes data join
+    var node = svg.selectAll(".node")
+        .data(data);
+
+    node
+      .enter().append("circle");
+
+    node
+      .attr("class", "node")
+      .attr("r", 5)
+      .attr("cx", function(d) {
+          return width/2;
+      })
+      .attr("cy", function(d,i) {
+          return i*10;
+          // return d.population/1000000;
+      });
+
+/*
+    var countryNames = svg.selectAll(".link")
+      .append("text")
+      .attr("font-size", 12)
+      // we need to bind the y position to the rows. Is that possible?
+      .attr("cx", function(d) {
+          return width/2 + 10;
+      })
+      .attr("cy", function(d,i) {
+          return i*10;
+          // return d.population/1000000;
+      })
+      .text(function(d) { return d.name })
+*/
+
+    node
+      .exit()
+      .remove();
+
+    function showByDefault() {
+        node.transition().duration(1500)
+        .attr("cy", function(d,i){
+          return i*10;
+        })
+      }
+
+    function showByPopulation() {
+        console.log("hey look it works!");
+        node.transition().duration(1500)
+        .attr("cy", function(d,i){
+          return d.population/100000;
+        })
+      }
+
+    function showByGDP() {
+        node.transition().duration(1500)
+        .attr("cy", function(d,i){
+          return d.gdp/100000000;
+        })
+      }
+
+    function showByLifeExpectancy() {
+      node.transition().duration(1500)
+      .attr("cy", function(d,i){
+        return d.life_expectancy*10 - 500;
+      })
+    }
+
+    /* function graph_update(duration) {
+
+      node.transition().duration(duration)
+          .attr("transform", function(d) { 
+            // translate is not the x and y position where you want the nodes to go, but how much of the x and y position you want them to change. So if you put down +0+, it means, "don't change the x position."
+            return "translate("+0+","+d.life_expectancy*3+")";
+          });
+          }
+    */ 
+
+    d3.select("input[value=\"default\"]").on("click", showByDefault);
+    
+    d3.select("input[value=\"population\"]").on("click", showByPopulation);
+
+    d3.select("input[value=\"gdp\"]").on("click", showByGDP);
+
+    d3.select("input[value=\"life_expectancy\"]").on("click", showByLifeExpectancy);
+    });
+
+  </script>
+</body>
+</html>
