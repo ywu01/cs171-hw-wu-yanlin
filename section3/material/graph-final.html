@@ -62,7 +62,6 @@
       .exit()
       .remove();
 
-
     // Nodes data join
     var node = svg.selectAll(".node")
         .data(data.nodes);
@@ -79,6 +78,9 @@
     node
       .exit()
       .remove();
+
+      console.log("this is data nodes");
+      console.log(data.nodes);
 
     force
         .nodes(data.nodes)

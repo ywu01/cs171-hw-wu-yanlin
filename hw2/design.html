@@ -74,6 +74,7 @@
     // is this even necessary? Just in case it is, I'll leave it here.
       .links(linkArray)
       .charge(-70)
+      .linkDistance(10)
       .friction(0.95)
       .size([width, height]);
 
@@ -82,13 +83,26 @@
     // filling linkArray with target and source information
     data.forEach(function(d, i) {
       // I'm just gonna leave this here for now; it seems that d.country_id is different here than down there a few lines below. I don't think it matters, though, as the array seems to be showing correct links.
-      var thisID = d.country_id;
-    d.years[17].top_partners.forEach(function(e, j) {
-        linkArray.push({"source": d.country_id, "target": e.country_id})
-      // console.log(d.country_id);
-    })
-  })
+      var sourceCountryID;
+      var targetCountryID;
+      d.years[17].top_partners.forEach(function(e, j) {
+          if (d.country_id == data[j].country_id) {
+                sourceCountryID = data[j];
+              };
+          for (var n = data.length - 1; n >= 0; n--) {
+              if (e.country_id == data[n].country_id) {
+                targetCountryID = data[n];
+              }
+          };
 
+        // THE KEY THING: YOU DON'T WANT YOUR SOURCE TO BE D.COUNTRY_ID, OR TARGET TO BE E.COUNTRY_ID. YOU WANT IT TO BE "INFORMATION OF COUNTRY THAT CORRESPONDS WITH D.COUNTRY_ID, OR E.COUNTRY_ID"
+        linkArray.push({"source": sourceCountryID, "target": targetCountryID})
+      // experimental
+    });
+  });
+      
+
+    console.log("this is link array");
     console.log(linkArray);
 
     // data join
@@ -96,6 +110,10 @@
         .data(data)
         .enter()
         .append("g").attr("class", "node")
+        // if we want to implement drag, put this there: .call(force.drag);
+
+    console.log("this is data, sans nodes");
+    console.log(data);
 
     node
       .append("circle")
@@ -111,10 +129,8 @@
         .data(linkArray);
 
     link
-      .enter().append("line");
-
-    link
-        .attr("class", "link");
+      .enter().append("line")
+      .attr("class", "link");
 
     link
       .exit()
@@ -279,10 +295,22 @@
 
     function normalTick(e) {
 
-      link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+      link.attr("x1", function(d) { linkArray.forEach(function(j,k){
+          return linkArray[k].target.x;
+          });
+        })
+        .attr("y1", function(d) { linkArray.forEach(function(j,k){
+          return linkArray[k].target.y;
+          });
+        })
+        .attr("x2", function(d) { linkArray.forEach(function(f,z){
+          return linkArray[4].source.x;
+          });
+        })
+        .attr("y2", function(d) { linkArray.forEach(function(f,z){
+          return linkArray[4].source.y;
+          });
+        });
 
         var k = 0.2 * e.alpha;
 
