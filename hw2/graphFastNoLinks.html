@@ -3,7 +3,6 @@
 <head>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-
   <style type="text/css">
     body {
       width: 800px;
@@ -26,8 +25,7 @@
   </style>
 </head>
 <body>
-  <h1>IN THE TRADE OF NATIONS <br> <span style="font-size:20px">A visualization of exports between various countries</span></h1>
-
+  <h1>Section 3: Exploring positional data encoding</h1>
     <form> 
       <label><input type="radio" name="layout" value="default" checked> Default </label>
       <label><input type="radio" name="layout" value="population"> Show by Population and GDP </label>
@@ -52,7 +50,7 @@
 
   var nodes = [],
     foci = [{x: 150, y: 300}, {x: 275, y: 300}, {x: 400, y: 300}, {x: 525, y: 300}, {x: 650, y: 300}];
-    fociPie = [{x: 100, y: 100}, {x: 200, y: 200}, {x: 300, y: 300}, {x: 400, y: 400}, {x: 650, y: 300}];
+    fociPie = [{x: 100, y: 100}];
 
   // Creates sources <svg> element and inner g (for margins)
   var svg = d3.select("body").append("svg")
@@ -67,6 +65,8 @@
       .charge(-70)
       .friction(0.95)
       .size([width, height]);
+
+      var color = d3.scale.category20();
 
   d3.json("data/countries_2012.json", function(data) {
 
@@ -245,6 +245,7 @@
         var k = 0.2 * e.alpha;
 
         svg.selectAll("circle")
+        .style("fill", function(d) {return color(d.continent); })
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
 
@@ -364,12 +365,12 @@
 
         svg.selectAll("circle")
         // you can mess around with the duration if you want to; it's quite fun. My personal favorites are 900 and 2500 for the circle movement transitions
-        .transition().duration(2000)
+        .transition().duration(1300)
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
 
         svg.selectAll("text")
-        .transition().duration(1000)
+        .transition().duration(1500)
         .attr("x", function(d) { return d.x; })
         .attr("y", function(d) { return d.y; });  
         })
@@ -457,12 +458,12 @@
 
             svg.selectAll("circle")
 
-            .transition().duration(2000)
+            .transition().duration(1300)
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
 
             svg.selectAll("text")
-            .transition().duration(1000)
+            .transition().duration(1500)
             .attr("x", function(d) { return d.x; })
             .attr("y", function(d) { return d.y; });  
             });

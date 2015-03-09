@@ -1,15 +1,21 @@
+<!-- 
+PROBLEM SET TWO, PARTS 4
+Y. KIT WU 
+
+This is part four. Upon clicking a country, the circles and texts of other countries that are in its top 10 trade list will enlarge. 
+
+There's not too much functionality, as you can probably tell; the transitions and typography, however, has been crafted to be as smooth as possible. Without the burden of links, as was the case in graph.html, the visualization moves a lot smoothly and the selected countries enlarge/minimize instantaneously. 
+
+In the "small circles" layout, it's really easy to see how most countries have top trading partners within their own continents. What's also interesting is that in the "life expectancy" portion, a lot of the countries at the top of the life expectancy ranking trade with other nations that also have high life expectancy. A correlation between improvements in life expectancy and international economic activity, perhaps? 
+
+Besides this, this is also a case where you can go around clicking from enlarged node to enlarged node. It's quite fun, at least for a while. 
+--> 
+
 <!DOCTYPE html>
 <html>
 <head>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-
-
-
-<!-- THIS IS CURRENTLY MY FUN VERSION! Before you submit, make sure this one has the serious code. -->
-
-
-
   <style type="text/css">
     body {
       width: 800px;
@@ -17,34 +23,32 @@
       font-family: 'Lato', sans-serif;
       text-align: center;
     }
-    h1 {
-      font-size: 40px;
-    }
     circle {
       fill: steelblue;
-      stroke: #fff;
-      stroke-width: 1;
+      fill-opacity: 0.8;
     }
-    .link {
-      stroke: #999;
-      stroke-opacity: .6;
+    .node:hover {
+      opacity:0.5;
     }
+  }
   </style>
 </head>
 <body>
-  <h1>Section 3: Exploring positional data encoding</h1>
-    <form> 
+  <h1>Part Four: Exploring Trade Partners, 2012</h1>
+  <p>
+    In this minimalist visualization, you can click on countries to see which other countries are the top 10 trade partners with that individual nation. No complex functionalities, just a clean layout with multiple arrangement of nations. I personally recommend doing this with the small circles arrangement.
+  <p>
+    <form>
+    Layout:
       <label><input type="radio" name="layout" value="default" checked> Default </label>
-      <label><input type="radio" name="layout" value="population"> Show by Population and GDP </label>
-      <label><input type="radio" name="layout" value="gdp"> Show by GDP and Population </label>
-      <label><input type="radio" name="layout" value="life_expectancy"> Life Expectancy and GDP </label> 
+      <label><input type="radio" name="layout" value="population"> Population </label>
+      <label><input type="radio" name="layout" value="gdp"> GDP </label>
+      <label><input type="radio" name="layout" value="life_expectancy"> Life Expectancy </label> 
+      <label><input type="radio" name="layout" value="populationGDP"> Show by Population and GDP </label>
+      <label><input type="radio" name="layout" value="GDPpouplation"> Show by GDP and Population </label>
+      <label><input type="radio" name="layout" value="life_expectancyGDP"> Life Expectancy and GDP </label> 
       <label><input type="radio" name="layout" value="latlong"> Latitude and Longitude </label> 
       <label><input type="radio" name="layout" value="singlePoint"> Single Point </label> 
-    </form>
-    <form>
-      <label><input type="radio" name="layout" value="fullCircle" checked> Complete Circle </label>
-      <label><input type="radio" name="layout" value="horizontalGrouping"> Horizontal Grouping </label>
-      <label><input type="radio" name="layout" value="pieGrouping"> A Not-really-working Foci Pie </label>
       <label><input type="radio" name="layout" value="circularLayout"> Circular Layout </label>
       <label><input type="radio" name="layout" value="miniCircles">  Small Circles </label>
     </form>
@@ -53,11 +57,7 @@
 
   var margin = {top: 40, bottom: 10, left: 20, right: 20};
   var width = 800 - margin.left - margin.right;
-  var height = 800 - margin.top - margin.bottom;
-
-  var nodes = [],
-    foci = [{x: 150, y: 300}, {x: 275, y: 300}, {x: 400, y: 300}, {x: 525, y: 300}, {x: 650, y: 300}];
-    fociPie = [{x: 100, y: 100}, {x: 200, y: 200}, {x: 300, y: 300}, {x: 400, y: 400}, {x: 650, y: 300}];
+  var height = 1500 - margin.top - margin.bottom;
 
   // Creates sources <svg> element and inner g (for margins)
   var svg = d3.select("body").append("svg")
@@ -68,83 +68,106 @@
 
   /////////////////////////
 
-  var linkArray = [];
+  var circles;
 
-  var force = d3.layout.force()
-    // is this even necessary? Just in case it is, I'll leave it here.
-      .links(linkArray)
-      .charge(-70)
-      .linkDistance(10)
-      .friction(0.95)
-      .size([width, height]);
+  var texts;
+
+  // creating an array of topCountries so that I can check which circle + text elements to enlarge upon a click
+  var topCountries = [];
+
+  var color = d3.scale.category20();
 
   d3.json("data/countries_1995_2012.json", function(data) {
 
-    // filling linkArray with target and source information
-    data.forEach(function(d, i) {
-      // I'm just gonna leave this here for now; it seems that d.country_id is different here than down there a few lines below. I don't think it matters, though, as the array seems to be showing correct links.
-      var sourceCountryID;
-      var targetCountryID;
-      d.years[17].top_partners.forEach(function(e, j) {
-          if (d.country_id == data[j].country_id) {
-                sourceCountryID = data[j];
-              };
-          for (var n = data.length - 1; n >= 0; n--) {
-              if (e.country_id == data[n].country_id) {
-                targetCountryID = data[n];
-              }
-          };
-
-        // THE KEY THING: YOU DON'T WANT YOUR SOURCE TO BE D.COUNTRY_ID, OR TARGET TO BE E.COUNTRY_ID. YOU WANT IT TO BE "INFORMATION OF COUNTRY THAT CORRESPONDS WITH D.COUNTRY_ID, OR E.COUNTRY_ID"
-        linkArray.push({"source": sourceCountryID, "target": targetCountryID})
-      // experimental
-    });
-  });
-      
-
-    console.log("this is link array");
-    console.log(linkArray);
-
-    // data join
+    // Nodes data join
     var node = svg.selectAll(".node")
         .data(data)
         .enter()
         .append("g").attr("class", "node")
-        // if we want to implement drag, put this there: .call(force.drag);
+        .on("click", function changeCircle(d) {
+          // this all happens upon the clicking of a node
 
-    console.log("this is data, sans nodes");
-    console.log(data);
+          // this was supposed to enlarge the specific node clicked by the user, but I think it clashed with some of the functionalities implemented below so I removed that. Now, only the top 10 exports of a country clicked changes in size. 
+          d3.select(this).select("text").transition()
+            .duration(1000)
+            .style("font-size", "20px");
+          d3.select(this).select("circle").transition()
+            .duration(1000)
+            .attr("r", 50);
 
-    node
+          topCountries = d.years[17].top_partners.map(function(e){
+            return e.country_id;
+          });
+          
+          // changing the size of circles in top 10 countries
+          d3.selectAll("circle").transition().duration(1500).attr("r", function(e){
+              if (topCountries.indexOf(e.country_id) != -1) {
+                return 30;
+              }
+              else {
+                return 5;
+              }
+            })
+
+          // changing the size of text in the top 10 countries
+          d3.selectAll("text").transition().duration(1500).attr("font-size", function(e){
+              if (topCountries.indexOf(e.country_id) != -1) {
+                return 20;
+              }
+              else {
+                return 10;
+              }
+            })
+        });
+        // end of onclick function
+
+    // for circle and text creation
+    circles = node
       .append("circle")
-      .attr("r", 5)
+      .transition().duration(1500)
+      .style("fill", function(d) {return color(d.continent); })
+      .attr("r", function(e){
+        if (topCountries.indexOf(e.country_id) != -1) {
+          return 30;
+        }
+        else {
+          return 5;
+        }
+      })
+      .attr("cx", function(d) {
+          return width/2;
+      })
+      .attr("cy", function(d,i) {
+          return i*10;
+      });
 
-    node
-      .append("text")
-      .attr("font-size", 10)
-      .text(function(d) { return d.name })
+      texts = node
+        .append("text")
+        .attr("font-size", function(e){
+                if (topCountries.indexOf(e.country_id) != -1) {
+                  return 20;
+                }
+                else {
+                  return 10;
+                }
+              })
+        .attr("x", function(d) {
+            return width/2 + 10;
+        })
+        .attr("y", function(d,i) {
+            return i*10;
+        })
+        .text(function(d) { return d.name })
 
-    // Links data join
-    var link = svg.selectAll(".link")
-        .data(linkArray);
-
-    link
-      .enter().append("line")
-      .attr("class", "link");
-
-    link
-      .exit()
-      .remove();
-
-
-// PART ONE FUNCTIONS START HERE
+    // Functions that move the nodes and the text start here
     function showByDefault() {
-      force.stop();
-
         svg.selectAll("circle")
         .transition().duration(1500)
         .attr("cy", function(d,i){
           return i*10;
+        })
+        .attr("cx", function(d) {
+          return width/2;
         })
 
         svg.selectAll("text")
@@ -152,11 +175,75 @@
         .attr("y", function(d,i){
           return i*10;
         })
+        .attr("x", function(d) {
+          return width/2 + 10;
+        })
       }
 
-    function showByPopulationAndGDP() {
-      force.stop();
+    function showByPopulation() {
+        console.log("hey look it works!");
+        svg.selectAll("circle")
+        .transition().duration(1500)
+        .attr("cy", function(d,i){
+          return d.years[17].population/100000;
+        })
+        .attr("cx", function(d) {
+          return width/2;
+        })
 
+        svg.selectAll("text")
+        .transition().duration(1500)
+        .attr("y", function(d,i){
+          return d.years[17].population/100000;
+        })
+        .attr("x", function(d) {
+          return width/2 + 10;
+        })
+      }
+
+    function showByGDP() {
+        svg.selectAll("circle")
+        .transition().duration(1500)
+        .attr("cy", function(d,i){
+          return d.years[17].gdp/100000000;
+        })
+        .attr("cx", function(d) {
+          return width/2;
+        })
+
+        svg.selectAll("text")
+        .transition().duration(1500)
+        .attr("y", function(d,i){
+          return d.years[17].gdp/100000000;
+        })
+        .attr("x", function(d) {
+          return width/2 + 10;
+        })
+      }
+
+    function showByLifeExpectancy() {
+      svg.selectAll("circle")
+      .transition().duration(1500)
+      .attr("cy", function(d,i){
+        return d.years[17].life_expectancy*10 - 500;
+      })
+      .attr("cx", function(d) {
+          return width/2;
+        })
+
+      svg.selectAll("text")
+      .transition().duration(1500)
+      .attr("y", function(d,i){
+        return d.years[17].life_expectancy*10 - 500;
+      })
+      .attr("x", function(d) {
+          return width/2 + 10;
+      })
+      }
+
+    // Functions that changes both the x and y positions of countries
+
+    function showByPopulationAndGDP() {
         svg.selectAll("circle")
         .transition().duration(1500)
         .attr("cx", function(d) {
@@ -177,8 +264,6 @@
       }
 
     function showByGDPAndPopulation() {
-      force.stop();
-
         svg.selectAll("circle")
         .transition().duration(1500)
         .attr("cx", function(d,i){
@@ -198,13 +283,10 @@
         })
       }
 
-    // doesn't work because life expectancy isn't life expectancy anymore
     function showByLifeExpectancyAndGDP() {
-      force.stop();
-
       svg.selectAll("circle")
         .transition().duration(1500)
-      .attr("cx", function(d,i) {
+      .attr("cx", function(d) {
           return d.years[17].gdp/100000000;
         })
       .attr("cy", function(d,i){
@@ -213,7 +295,7 @@
 
       svg.selectAll("text")
         .transition().duration(1500)
-      .attr("x", function(d,i) {
+      .attr("x", function(d) {
           return d.years[17].gdp/100000000 + 10;
         })
       .attr("y", function(d,i){
@@ -222,8 +304,6 @@
     }
 
     function showByLatAndLong() {
-      force.stop();
-
       svg.selectAll("circle")
         .transition().duration(1500)
       .attr("cx", function(d) {
@@ -244,8 +324,6 @@
     }
 
     function singlePoint() {
-      force.stop();
-
       svg.selectAll("circle")
         .transition().duration(1500)
       .attr("cx", function(d) {
@@ -266,146 +344,9 @@
           return height/10;
         })
     }
-// PART ONE FUNCTIONS END HERE
 
-// PART TWO FUNCTIONS, BEGIN!
-    function normalForce() {
-      force
-        .nodes(data)
-        .links([])
-        .start()
-        .on("tick", normalTick);
-    }
-
-    function horizontalForce() {
-      force
-        .nodes(data)
-        .links([])
-        .start()
-        .on("tick", tick);
-    }
-
-    function pieForce() {
-      force
-        .nodes(data)
-        .links([])
-        .start()
-        .on("tick", pie);
-    }
-
-    function normalTick(e) {
-
-      link.attr("x1", function(d) { linkArray.forEach(function(j,k){
-          return linkArray[k].target.x;
-          });
-        })
-        .attr("y1", function(d) { linkArray.forEach(function(j,k){
-          return linkArray[k].target.y;
-          });
-        })
-        .attr("x2", function(d) { linkArray.forEach(function(f,z){
-          return linkArray[4].source.x;
-          });
-        })
-        .attr("y2", function(d) { linkArray.forEach(function(f,z){
-          return linkArray[4].source.y;
-          });
-        });
-
-        var k = 0.2 * e.alpha;
-
-        svg.selectAll("circle")
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-
-        svg.selectAll("text")
-        .attr("x", function(d) { return d.x; })
-        .attr("y", function(d) { return d.y; });    
-      }
-
-    function tick(e) {
-
-        var k = 0.2 * e.alpha;
-
-        // console.log("check check");
-        
-        // applies a custom force alternating between pushing nodes towards one of the four corners
-        data.forEach(function(o, i) {
-
-          console.log("yayy you made it");
-
-          if (o.continent == "Asia") {   
-            // or should it be o.continent?
-            // console.log("check two");
-            o.y += (foci[0].y - o.y) * k;
-            // array object zero should be asia coordinates
-            o.x += (foci[0].x - o.x) * k;
-          }
-          
-          if (o.continent == "Americas") { 
-            o.y += (foci[1].y - o.y) * k;
-            o.x += (foci[1].x - o.x) * k;
-          }
-
-          if (o.continent == "Africa") { 
-            o.y += (foci[2].y - o.y) * k;
-            o.x += (foci[2].x - o.x) * k;
-          }
-
-          if (o.continent == "Europe") { 
-            o.y += (foci[3].y - o.y) * k;
-            o.x += (foci[3].x - o.x) * k;
-          }
-
-          if (o.continent == "Oceania") { 
-            o.y += (foci[4].y - o.y) * k;
-            o.x += (foci[4].x - o.x) * k;
-          }
-        });
-
-        svg.selectAll("circle")
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-
-        svg.selectAll("text")
-        .attr("x", function(d) { return d.x; })
-        .attr("y", function(d) { return d.y; });    
-      }
-      // end of tick function
-
-      function pie(e) {
-
-        var k = 0.2 * e.alpha;
-
-        // console.log("check check");
-        
-        // applies a custom force alternating between pushing nodes towards one of the four corners
-        data.forEach(function(o, i) {
-
-          if (o.continent == "Asia") { 
-            // or should it be o.continent?
-            // console.log("check two");
-            o.y += (fociPie[0].y - o.y) * k;
-            // array object zero should be asia coordinates
-            o.x += (fociPie[0].x - o.x) * k;
-          }
-
-        });
-
-        svg.selectAll("circle")
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-
-        svg.selectAll("text")
-        .attr("x", function(d) { return d.x; })
-        .attr("y", function(d) { return d.y; });    
-      }
-      // end of tick function
-
-
-      function circular_layout() {
-
-        force.stop();
+    // a circular layout 
+    function circular_layout() {
 
         var r = Math.min(height/1.5, width/1.5);
 
@@ -428,7 +369,7 @@
           // Building the data object we are going to return
           d.data.x = arc.centroid(d)[0]+width/2;
           // ohhhhhh so I suppose that +width/2 is the x coordinate of the center of the circle
-          d.data.y = arc.centroid(d)[1]+height/2;
+          d.data.y = arc.centroid(d)[1]+height/5;
 
         svg.selectAll("circle")
         // you can mess around with the duration if you want to; it's quite fun. My personal favorites are 900 and 2500 for the circle movement transitions
@@ -442,11 +383,8 @@
         .attr("y", function(d) { return d.y; });  
         })
       }
-    // end of experimental circular portion
 
     function mini_Circles() {
-
-        force.stop();
 
         var r = Math.min(height/3.5, width/3.5);
 
@@ -470,7 +408,6 @@
           if (o.continent == "Asia") {   
             AsiaArray.push(data[i]);
           }
-          //console.log(AsiaArray);
           if (o.continent == "Africa") {   
             AfricaArray.push(data[i]);
           }
@@ -499,28 +436,28 @@
               d.outerRadius = r;
 
             if (continentArray[0].continent == "Asia") {
-              d.data.x = arc.centroid(d)[0]+width/2;
-              d.data.y = arc.centroid(d)[1]+150;
+              d.data.x = arc.centroid(d)[0]+width/2 - 150;
+              d.data.y = arc.centroid(d)[1]+250;
             }
 
             else if (continentArray[0].continent == "Africa") {
-              d.data.x = arc.centroid(d)[0]+width/2;
-              d.data.y = arc.centroid(d)[1]+650;
+              d.data.x = arc.centroid(d)[0]+width/2 - 250;
+              d.data.y = arc.centroid(d)[1]+150;
             }
 
             else if (continentArray[0].continent == "Americas") {
-              d.data.x = arc.centroid(d)[0]+150;
-              d.data.y = arc.centroid(d)[1]+height/2;
+              d.data.x = arc.centroid(d)[0]+width/2 + 150;
+              d.data.y = arc.centroid(d)[1]+250;
             }
 
             else if (continentArray[0].continent == "Europe") {
-              d.data.x = arc.centroid(d)[0]+650;
-              d.data.y = arc.centroid(d)[1]+height/2;
+              d.data.x = arc.centroid(d)[0]+width/2 + 250;
+              d.data.y = arc.centroid(d)[1]+150;
             }
 
             else if (continentArray[0].continent == "Oceania") {
               d.data.x = arc.centroid(d)[0]+width/2;
-              d.data.y = arc.centroid(d)[1]+height/2;
+              d.data.y = arc.centroid(d)[1]+150;
             }
 
             svg.selectAll("circle")
@@ -538,33 +475,30 @@
 
         }
 
+    // responding to selections in the radio buttons
+    d3.select("input[value=\"circularLayout\"]").on("click", circular_layout);
 
-      // to start off with a normal circle 
-      normalForce(); 
+    d3.select("input[value=\"miniCircles\"]").on("click", mini_Circles);
 
-      d3.select("input[value=\"default\"]").on("click", showByDefault);
+    d3.select("input[value=\"default\"]").on("click", showByDefault);
 
-      d3.select("input[value=\"population\"]").on("click", showByPopulationAndGDP);
+    d3.select("input[value=\"population\"]").on("click", showByPopulation);
 
-      d3.select("input[value=\"gdp\"]").on("click", showByGDPAndPopulation);
+    d3.select("input[value=\"gdp\"]").on("click", showByGDP);
 
-      d3.select("input[value=\"life_expectancy\"]").on("click", showByLifeExpectancyAndGDP);
+    d3.select("input[value=\"life_expectancy\"]").on("click", showByLifeExpectancy);
+    
+    d3.select("input[value=\"populationGDP\"]").on("click", showByPopulationAndGDP);
 
-      d3.select("input[value=\"latlong\"]").on("click", showByLatAndLong);
+    d3.select("input[value=\"GDPpouplation\"]").on("click", showByGDPAndPopulation);
 
-      d3.select("input[value=\"singlePoint\"]").on("click", singlePoint);
+    d3.select("input[value=\"life_expectancyGDP\"]").on("click", showByLifeExpectancyAndGDP);
 
-      // running functions upon the checking of radio buttons
-      d3.select("input[value=\"fullCircle\"]").on("click", normalForce);
+    d3.select("input[value=\"latlong\"]").on("click", showByLatAndLong);
 
-      d3.select("input[value=\"horizontalGrouping\"]").on("click", horizontalForce);
+    d3.select("input[value=\"singlePoint\"]").on("click", singlePoint);
 
-      d3.select("input[value=\"pieGrouping\"]").on("click", pieForce);
-
-      d3.select("input[value=\"circularLayout\"]").on("click", circular_layout);
-
-      d3.select("input[value=\"miniCircles\"]").on("click", mini_Circles);
-  });
+    });
 
   </script>
 </body>
