@@ -102,9 +102,13 @@ Besides this, this is also a case where you can go around clicking from enlarged
           // changing the size of circles in top 10 countries
           d3.selectAll("circle").transition().duration(1500).attr("r", function(e){
               if (topCountries.indexOf(e.country_id) != -1) {
-                return 30;
+                // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                return e.years[17].gdp/100000000000;
+                //return 30;
               }
               else {
+                // free free to change the size of these circles
+                // return 0
                 return 5;
               }
             })
@@ -116,6 +120,8 @@ Besides this, this is also a case where you can go around clicking from enlarged
               }
               else {
                 return 10;
+                // if you want to make it look cool, you can make it return 0
+                // return 0
               }
             })
         });

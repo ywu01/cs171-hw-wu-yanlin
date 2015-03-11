@@ -98,12 +98,15 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
     // filling linkArray with target and source information
     data.forEach(function(d, i) {
 
+      var placeholderID = data[i];
+
       d.years[17].top_partners.forEach(function(e, j) {
         // this should make the links work, hopefully, if you use 1995 data. Maybe in here as well.
 
-          if (d.country_id == data[j].country_id) {
-                sourceCountryID = data[j];
-              };
+
+
+                sourceCountryID = placeholderID;
+              
           for (var n = data.length - 1; n >= 0; n--) {
               if (e.country_id == data[n].country_id) {
                 targetCountryID = data[n];
@@ -112,6 +115,9 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
 
           linkArray.push({"source": sourceCountryID, "target": targetCountryID})
             });
+
+          if (d.country_id == 20)
+            console.log(linkArray);
         });
 
     // data join; appending circles and text to the nodes
@@ -391,10 +397,30 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
         // applies a custom force alternating between pushing nodes towards one of the four corners
         data.forEach(function(o, i) {
 
-          if (o.continent == "Asia") { 
-            o.y += (fociPie[0].y - o.y) * k;
+          if (o.continent == "Asia") {   
+            o.y += (foci[0].y - o.y) * k;
             // array object zero should be asia coordinates
-            o.x += (fociPie[0].x - o.x) * k;
+            o.x += (foci[0].x - o.x) * k;
+          }
+          
+          if (o.continent == "Americas") { 
+            o.y += (foci[1].y - o.y) * k;
+            o.x += (foci[1].x - o.x) * k;
+          }
+
+          if (o.continent == "Africa") { 
+            o.y += (foci[2].y - o.y) * k;
+            o.x += (foci[2].x - o.x) * k;
+          }
+
+          if (o.continent == "Europe") { 
+            o.y += (foci[3].y - o.y) * k;
+            o.x += (foci[3].x - o.x) * k;
+          }
+
+          if (o.continent == "Oceania") { 
+            o.y += (foci[4].y - o.y) * k;
+            o.x += (foci[4].x - o.x) * k;
           }
 
         });
