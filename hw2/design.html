@@ -34,23 +34,36 @@ Besides this, this is also a case where you can go around clicking from enlarged
   </style>
 </head>
 <body>
-  <h1>Part Four: Exploring Trade Partners, 2012</h1>
+  <h1>Part Four: The Relativity of Nations, 2012</h1>
   <p>
-    In this minimalist visualization, you can click on countries to see which other countries are the top 10 trade partners with that individual nation. No complex functionalities, just a clean layout with multiple arrangement of nations. I personally recommend doing this with the small circles arrangement.
-  <p>
+    China is the most populated country in the world; the United States has the largest GDP of any nation. What do those things mean? In this interactive visualization, you will be able to not only find out which countries trade the most with each other, but also how their respective quantitative qualities compare to one another.
+
+    <!-- My favorite combinations: life expectancy + disappearing circles + circular layout; population + small circles + disappearing cirlces; gdp per capita + disappearing circles; anything with single point. It's actually pretty fun, play around with it. --> 
+  </p>
     <form>
-    Layout:
+    <strong>Layout:</strong>
       <label><input type="radio" name="layout" value="default" checked> Default </label>
-      <label><input type="radio" name="layout" value="population"> Population </label>
-      <label><input type="radio" name="layout" value="gdp"> GDP </label>
-      <label><input type="radio" name="layout" value="life_expectancy"> Life Expectancy </label> 
-      <label><input type="radio" name="layout" value="populationGDP"> Show by Population and GDP </label>
-      <label><input type="radio" name="layout" value="GDPpouplation"> Show by GDP and Population </label>
-      <label><input type="radio" name="layout" value="life_expectancyGDP"> Life Expectancy and GDP </label> 
       <label><input type="radio" name="layout" value="latlong"> Latitude and Longitude </label> 
       <label><input type="radio" name="layout" value="singlePoint"> Single Point </label> 
       <label><input type="radio" name="layout" value="circularLayout"> Circular Layout </label>
       <label><input type="radio" name="layout" value="miniCircles">  Small Circles </label>
+    </form>
+
+    <form>
+    <strong>Circle Sizing:</strong>
+        <!-- <label>Uniform Size<input type="radio" name="details" value="off" onclick="normalize(this.value)"></label> -->
+        <label>Size by GDP Large<input type="radio" name="details" onclick="toggleGDPLarge(this.value)"></label>
+        <label>Size by GDP Small<input type="radio" name="details" onclick="toggleGDPSmall(this.value)"></label>
+        <label>Size by Population<input type="radio" name="details" onclick="togglePopulation(this.value)"></label>
+        <label>GDP Per Capita<input type="radio" name="details" onclick="gdpPerCapita(this.value)"></label>
+        <label>Life Expectancy<input type="radio" name="details" onclick="lifeExpectancy(this.value)"></label>
+    </form>
+
+    <form>
+    <strong>Make other circles disappear:</strong> 
+        <!-- <label>Uniform Size<input type="radio" name="details" value="off" onclick="normalize(this.value)"></label> -->
+        <label>On<input type="radio" name="details" value="on" onclick="disappearOn(this.value)"></label>
+        <label>Off<input type="radio" name="details" value="off" onclick="disappearOff(this.value)"></label>
     </form>
 
   <script type="text/javascript">
@@ -102,14 +115,53 @@ Besides this, this is also a case where you can go around clicking from enlarged
           // changing the size of circles in top 10 countries
           d3.selectAll("circle").transition().duration(1500).attr("r", function(e){
               if (topCountries.indexOf(e.country_id) != -1) {
-                // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
-                return e.years[17].gdp/100000000000;
-                //return 30;
+
+                if (toggleOptions == "sizeByGDPLarge") {
+                  // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                  return e.years[17].gdp/10000000000;
+                  //return 30;
+                }
+
+                if (toggleOptions == "sizeByGDPSmall") {
+                  // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                  return e.years[17].gdp/100000000000;
+                  //return 30;
+                }
+
+                if (toggleOptions == "sizeByPopulation") {
+                  // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                  return e.years[17].population/10000000;
+                  //return 30;
+                }
+
+                if (toggleOptions == "gdpPerCapita") {
+                  // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                  return (e.years[17].gdp/e.years[17].population)/1000;
+                  //return 30;
+                }
+
+                if (toggleOptions == "lifeExpectancy") {
+                  // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                  return e.years[17].life_expectancy;
+                  //return 30;
+                }
+
+                if (toggleOptions == "normal") {
+                  // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                  return 30;
+                  //return 30;
+                }
+                
               }
               else {
-                // free free to change the size of these circles
-                // return 0
-                return 5;
+                  if (disappearing == "On") {
+                    // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                    return 0;
+                    //return 30;
+                  }
+                  else {
+                    return 5;
+                  }
               }
             })
 
@@ -119,7 +171,14 @@ Besides this, this is also a case where you can go around clicking from enlarged
                 return 20;
               }
               else {
-                return 10;
+                  if (disappearing == "On") {
+                    // change the size of this, or just set a "30" if you want fixed size. You can also return other things, like population
+                    return 0;
+                    //return 30;
+                  }
+                  else {
+                    return 10;
+                  }
                 // if you want to make it look cool, you can make it return 0
                 // return 0
               }
@@ -186,66 +245,66 @@ Besides this, this is also a case where you can go around clicking from enlarged
         })
       }
 
-    function showByPopulation() {
-        console.log("hey look it works!");
-        svg.selectAll("circle")
-        .transition().duration(1500)
-        .attr("cy", function(d,i){
-          return d.years[17].population/100000;
-        })
-        .attr("cx", function(d) {
-          return width/2;
-        })
+    // function showByPopulation() {
+    //     console.log("hey look it works!");
+    //     svg.selectAll("circle")
+    //     .transition().duration(1500)
+    //     .attr("cy", function(d,i){
+    //       return d.years[17].population/100000;
+    //     })
+    //     .attr("cx", function(d) {
+    //       return width/2;
+    //     })
 
-        svg.selectAll("text")
-        .transition().duration(1500)
-        .attr("y", function(d,i){
-          return d.years[17].population/100000;
-        })
-        .attr("x", function(d) {
-          return width/2 + 10;
-        })
-      }
+    //     svg.selectAll("text")
+    //     .transition().duration(1500)
+    //     .attr("y", function(d,i){
+    //       return d.years[17].population/100000;
+    //     })
+    //     .attr("x", function(d) {
+    //       return width/2 + 10;
+    //     })
+    //   }
 
-    function showByGDP() {
-        svg.selectAll("circle")
-        .transition().duration(1500)
-        .attr("cy", function(d,i){
-          return d.years[17].gdp/100000000;
-        })
-        .attr("cx", function(d) {
-          return width/2;
-        })
+    // function showByGDP() {
+    //     svg.selectAll("circle")
+    //     .transition().duration(1500)
+    //     .attr("cy", function(d,i){
+    //       return d.years[17].gdp/100000000;
+    //     })
+    //     .attr("cx", function(d) {
+    //       return width/2;
+    //     })
 
-        svg.selectAll("text")
-        .transition().duration(1500)
-        .attr("y", function(d,i){
-          return d.years[17].gdp/100000000;
-        })
-        .attr("x", function(d) {
-          return width/2 + 10;
-        })
-      }
+    //     svg.selectAll("text")
+    //     .transition().duration(1500)
+    //     .attr("y", function(d,i){
+    //       return d.years[17].gdp/100000000;
+    //     })
+    //     .attr("x", function(d) {
+    //        return width/2 + 10;
+    //      })
+    //    }
 
-    function showByLifeExpectancy() {
-      svg.selectAll("circle")
-      .transition().duration(1500)
-      .attr("cy", function(d,i){
-        return d.years[17].life_expectancy*10 - 500;
-      })
-      .attr("cx", function(d) {
-          return width/2;
-        })
+    // function showByLifeExpectancy() {
+    //   svg.selectAll("circle")
+    //   .transition().duration(1500)
+    //   .attr("cy", function(d,i){
+    //     return d.years[17].life_expectancy*10 - 500;
+    //   })
+    //   .attr("cx", function(d) {
+    //       return width/2;
+    //     })
 
-      svg.selectAll("text")
-      .transition().duration(1500)
-      .attr("y", function(d,i){
-        return d.years[17].life_expectancy*10 - 500;
-      })
-      .attr("x", function(d) {
-          return width/2 + 10;
-      })
-      }
+    //   svg.selectAll("text")
+    //   .transition().duration(1500)
+    //   .attr("y", function(d,i){
+    //     return d.years[17].life_expectancy*10 - 500;
+    //   })
+    //   .attr("x", function(d) {
+    //       return width/2 + 10;
+    //   })
+    //   }
 
     // Functions that changes both the x and y positions of countries
 
@@ -488,11 +547,11 @@ Besides this, this is also a case where you can go around clicking from enlarged
 
     d3.select("input[value=\"default\"]").on("click", showByDefault);
 
-    d3.select("input[value=\"population\"]").on("click", showByPopulation);
+    // d3.select("input[value=\"population\"]").on("click", showByPopulation);
 
-    d3.select("input[value=\"gdp\"]").on("click", showByGDP);
+    // d3.select("input[value=\"gdp\"]").on("click", showByGDP);
 
-    d3.select("input[value=\"life_expectancy\"]").on("click", showByLifeExpectancy);
+    // d3.select("input[value=\"life_expectancy\"]").on("click", showByLifeExpectancy);
     
     d3.select("input[value=\"populationGDP\"]").on("click", showByPopulationAndGDP);
 
@@ -506,6 +565,43 @@ Besides this, this is also a case where you can go around clicking from enlarged
 
     });
 
+  // for aggregation
+      var toggleOptions = "normal";
+
+      var disappearing = "Off"
+
+      // function normalize(val){
+      //   toggleOptions = "normal";
+      // };
+
+      // turning aggregation on and off
+      function toggleGDPLarge(val){
+        toggleOptions = "sizeByGDPLarge";
+      };
+
+      function toggleGDPSmall(val){
+        toggleOptions = "sizeByGDPSmall";
+      };
+
+      function togglePopulation(val){
+        toggleOptions = "sizeByPopulation";
+      };
+
+      function gdpPerCapita(val){
+        toggleOptions = "gdpPerCapita";
+      };
+
+      function lifeExpectancy(val){
+        toggleOptions = "lifeExpectancy";
+      };
+
+      function disappearOn(val){
+        disappearing = "On";
+      };
+
+      function disappearOff(val){
+        disappearing = "Off";
+      };
   </script>
 </body>
 </html>
