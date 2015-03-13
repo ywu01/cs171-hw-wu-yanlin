@@ -4,8 +4,6 @@ Y. KIT WU
 
 Part one is good, albeit (0,0) is at the top left corner instead of the bottom left. 
 
-Part three has links showing, but for some reason, they all seem to be connected to Bulgaria. I'm pretty sure Bulgaria trades with other nations, but not enough to be top ten with like, 50 countries. (Or maybe I'm wrong and it really is a modern trading capital in 2012.)
-
 Transitions are implemented, with the circular ones in a slightly more artistic fashion. The single point option is also there just for fun; it collapses all the nodes into a singnle point on the document. 
 
 ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely smooth version of this one, with colors.
@@ -34,7 +32,10 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
     }
     .link {
       stroke: #999;
-      stroke-opacity: .6;
+      stroke-opacity: .4;
+    }
+    .node:hover {
+      opacity:0.5;
     }
   </style>
 </head>
@@ -52,12 +53,13 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
     <form>
       <label><input type="radio" name="layout" value="fullCircle" checked> Complete Circle </label>
       <label><input type="radio" name="layout" value="horizontalGrouping"> Horizontal Grouping </label>
-      <label><input type="radio" name="layout" value="pieGrouping"> Pie Grouping? </label>
+      <label><input type="radio" name="layout" value="pieGrouping"> Pie Grouping </label>
       <label><input type="radio" name="layout" value="circularLayout"> Circular Layout </label>
       <label><input type="radio" name="layout" value="miniCircles">  Small Circles </label>
     </form>
     <form> 
       <label><input type="radio" name="layout" value="linkRemoval">  Remove Links (It's a lot faster without them) </label>
+      <label><input type="radio" name="layout" value="linkDataJoin">  Reinstate Links </label>
     </form>
 
   <script type="text/javascript">
@@ -69,7 +71,8 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
   // creating the focus points for which I will center specific nodes/circles/text
   var nodes = [],
     foci = [{x: 150, y: 300}, {x: 275, y: 300}, {x: 400, y: 300}, {x: 525, y: 300}, {x: 650, y: 300}];
-    fociPie = [{x: 100, y: 100}];
+
+    fociPie = [{x: width/2 - 75, y: length/2 + 250}, {x: width/2 + 25, y: length/2 + 100}, {x: width/2 + 50, y: length/2 + 275}, {x: width/2 - 100, y: length/2 + 150}, {x: width/2 + 75, y: length/2 + 150}];
 
   // Creates sources <svg> element and inner g (for margins)
   var svg = d3.select("body").append("svg")
@@ -103,9 +106,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
       d.years[17].top_partners.forEach(function(e, j) {
         // this should make the links work, hopefully, if you use 1995 data. Maybe in here as well.
 
-
-
-                sourceCountryID = placeholderID;
+          sourceCountryID = placeholderID;
               
           for (var n = data.length - 1; n >= 0; n--) {
               if (e.country_id == data[n].country_id) {
@@ -125,7 +126,6 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
         .data(data)
         .enter()
         .append("g").attr("class", "node")
-        .call(force.drag);
 
     node
       .append("circle")
@@ -149,6 +149,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
     // PART ONE FUNCTIONS START HERE
     function showByDefault() {
       force.stop();
+      linkRemoval();
 
         svg.selectAll("circle")
         .transition().duration(1500)
@@ -165,6 +166,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
 
     function showByPopulationAndGDP() {
       force.stop();
+      linkRemoval();
 
         svg.selectAll("circle")
         .transition().duration(1500)
@@ -187,6 +189,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
 
     function showByGDPAndPopulation() {
       force.stop();
+      linkRemoval();
 
         svg.selectAll("circle")
         .transition().duration(1500)
@@ -210,6 +213,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
     // doesn't work because life expectancy isn't life expectancy anymore
     function showByLifeExpectancyAndGDP() {
       force.stop();
+      linkRemoval();
 
       svg.selectAll("circle")
         .transition().duration(1500)
@@ -232,6 +236,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
 
     function showByLatAndLong() {
       force.stop();
+      linkRemoval();
 
       svg.selectAll("circle")
         .transition().duration(1500)
@@ -254,6 +259,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
 
     function singlePoint() {
       force.stop();
+      linkRemoval();
 
       svg.selectAll("circle")
         .transition().duration(1500)
@@ -307,18 +313,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
     // a default floating blob of nodes
     function normalTick(e) {
 
-      link.attr("x1", function(d,i) {
-          return linkArray[i].target.x;
-        })
-        .attr("y1", function(d,i) { 
-          return linkArray[i].target.y;
-        })
-        .attr("x2", function(d,i) { 
-          return linkArray[i].source.x;
-        })
-        .attr("y2", function(d,i) { 
-          return linkArray[i].source.y;
-        });
+      linkCreation();
 
         var k = 0.2 * e.alpha;
 
@@ -365,19 +360,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
           }
         });
 
-        link
-              .attr("x1", function(d,i) {
-                return linkArray[i].target.x;
-              })
-              .attr("y1", function(d,i) { 
-                return linkArray[i].target.y;
-              })
-              .attr("x2", function(d,i) { 
-                return linkArray[i].source.x;
-              })
-              .attr("y2", function(d,i) { 
-                return linkArray[i].source.y;
-              });
+        linkCreation();
 
         svg.selectAll("circle")
         .attr("cx", function(d) { return d.x; })
@@ -389,7 +372,6 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
       }
       // end of tick function
 
-      // my unsuccessful attempt to make a pie grouping function
       function pie(e) {
 
         var k = 0.2 * e.alpha;
@@ -398,46 +380,34 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
         data.forEach(function(o, i) {
 
           if (o.continent == "Asia") {   
-            o.y += (foci[0].y - o.y) * k;
+            o.y += (fociPie[0].y - o.y) * k;
             // array object zero should be asia coordinates
-            o.x += (foci[0].x - o.x) * k;
+            o.x += (fociPie[0].x - o.x) * k;
           }
           
           if (o.continent == "Americas") { 
-            o.y += (foci[1].y - o.y) * k;
-            o.x += (foci[1].x - o.x) * k;
+            o.y += (fociPie[1].y - o.y) * k;
+            o.x += (fociPie[1].x - o.x) * k;
           }
 
           if (o.continent == "Africa") { 
-            o.y += (foci[2].y - o.y) * k;
-            o.x += (foci[2].x - o.x) * k;
+            o.y += (fociPie[2].y - o.y) * k;
+            o.x += (fociPie[2].x - o.x) * k;
           }
 
           if (o.continent == "Europe") { 
-            o.y += (foci[3].y - o.y) * k;
-            o.x += (foci[3].x - o.x) * k;
+            o.y += (fociPie[3].y - o.y) * k;
+            o.x += (fociPie[3].x - o.x) * k;
           }
 
           if (o.continent == "Oceania") { 
-            o.y += (foci[4].y - o.y) * k;
-            o.x += (foci[4].x - o.x) * k;
+            o.y += (fociPie[4].y - o.y) * k;
+            o.x += (fociPie[4].x - o.x) * k;
           }
 
         });
 
-        link
-              .attr("x1", function(d,i) {
-                return linkArray[i].target.x;
-              })
-              .attr("y1", function(d,i) { 
-                return linkArray[i].target.y;
-              })
-              .attr("x2", function(d,i) { 
-                return linkArray[i].source.x;
-              })
-              .attr("y2", function(d,i) { 
-                return linkArray[i].source.y;
-              });
+        linkCreation();
 
         svg.selectAll("circle")
         .attr("cx", function(d) { return d.x; })
@@ -447,7 +417,6 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
         .attr("x", function(d) { return d.x; })
         .attr("y", function(d) { return d.y; });    
       }
-      // end of tick function
 
       // self-explanatory
       function circular_layout() {
@@ -477,19 +446,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
           // ohhhhhh so I suppose that +width/2 is the x coordinate of the center of the circle
           d.data.y = arc.centroid(d)[1]+height/2;
 
-        link
-        .attr("x1", function(d,i) {
-          return linkArray[i].target.x;
-        })
-        .attr("y1", function(d,i) { 
-          return linkArray[i].target.y;
-        })
-        .attr("x2", function(d,i) { 
-          return linkArray[i].source.x;
-        })
-        .attr("y2", function(d,i) { 
-          return linkArray[i].source.y;
-        });
+        linkCreation();
 
         svg.selectAll("circle")
         // you can mess around with the duration if you want to; it's quite fun. My personal favorites are 900 and 2500 for the circle movement transitions
@@ -583,19 +540,7 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
               d.data.y = arc.centroid(d)[1]+height/2;
             }
 
-            link
-              .attr("x1", function(d,i) {
-                return linkArray[i].target.x;
-              })
-              .attr("y1", function(d,i) { 
-                return linkArray[i].target.y;
-              })
-              .attr("x2", function(d,i) { 
-                return linkArray[i].source.x;
-              })
-              .attr("y2", function(d,i) { 
-                return linkArray[i].source.y;
-              });
+            linkCreation();
 
             svg.selectAll("circle")
 
@@ -617,6 +562,32 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
           link.remove();
         }
 
+        function linkCreation() {
+          link
+              .attr("x1", function(d,i) {
+                return linkArray[i].target.x;
+              })
+              .attr("y1", function(d,i) { 
+                return linkArray[i].target.y;
+              })
+              .attr("x2", function(d,i) { 
+                return linkArray[i].source.x;
+              })
+              .attr("y2", function(d,i) { 
+                return linkArray[i].source.y;
+              });
+        }
+
+        function linkDataJoin() {
+          link = svg.selectAll(".link")
+          .data(linkArray);
+
+          link
+            .enter().append("line");
+
+          link
+            .attr("class", "link");
+        }
 
       // to start off with a normal circle 
       normalForce(); 
@@ -645,6 +616,8 @@ ON ANOTHER NOTE, also check out the "graphFastNoLinks" file. It's an insanely sm
       d3.select("input[value=\"miniCircles\"]").on("click", mini_Circles);
 
       d3.select("input[value=\"linkRemoval\"]").on("click", linkRemoval);
+
+      d3.select("input[value=\"linkDataJoin\"]").on("click", linkDataJoin);
   });
 
   </script>
