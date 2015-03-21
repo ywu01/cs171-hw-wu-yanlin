@@ -1,6 +1,6 @@
 Homework 3
 ===
-*This homework is due on Friday, March 27th 2015, 11:59 pm*
+*This homework is due on Friday, April 3rd 2015, 11:59 pm*
 
 In this homework assignment you will create an interactive visualization using [D3.js](http://d3js.org). While the previous homework assignments were about iterating on a single visualization, the goal of this homework is to connect several pieces into an interactive multiple, coordinated views (MCV) system. You will implement some of the principles introduced in the ["Interaction" lecture](http://cm.dce.harvard.edu/2015/02/24028/L08/screen_H264MultipleHighLTH-16x9.shtml). 
 
@@ -233,7 +233,7 @@ We want to use the brush to choose the data to show in our details-view. As ment
 
 You should get acquainted with the [d3.svg.area()](https://github.com/mbostock/d3/wiki/SVG-Shapes#area) function and the d3 path functions. A useful guide can be found [here](http://www.d3noob.org/2013/01/filling-area-under-graph.html).
 
-Before you start with the tasks of Problem 3, make sure to first copy and paste the functions you wrote for Problem 2 at the correct location into your code.
+Before you start with the tasks of Problems 3 and 4, make yourself aware that you can re-use (copy and paste) some functions you wrote for Problem 2.
 
 #### Task 3a: Create an Area Chart
 Add your code to the `updateVis()` function in file ***js/countvis.js***.
