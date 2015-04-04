@@ -6,6 +6,7 @@
 
     <!-- ADD Libraries-->
     <script src="libs/d3/d3.min.js" charset="utf-8"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
     <script src="libs/jquery/jquery-2.1.1.min.js" charset="utf-8"></script>
     <script src="libs/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
 
@@ -59,15 +60,11 @@
         <div class="row">
             <div class="col-md-9" id="countVis">
                 <!-- TODO: delete placeholder svg element -->
-                <svg width="650" height="330" style="background-color: lightblue">
-                    <text x="50" y="50">HERE should be CountVis</text>
-                </svg>
+
             </div>
             <div class="col-md-3" id="ageVis">
                 <!-- TODO: delete placeholder svg element -->
-                <svg width="230" height="330" style="background-color: lightcoral">
-                    <text x="50" y="50">HERE should be AgeVis</text>
-                </svg>
+                
             </div>
         </div>
 
@@ -117,11 +114,24 @@
 
 
                 //TODO: Instantiate all Vis Objects here
+                // instantiates all Vis Objects here
+                var count_vis = new CountVis(d3.select("#countVis"), allData, metaData, MyEventHandler);
+                var age_vis = new AgeVis(d3.select("#ageVis"), allData, metaData);
 
+                // var prio_vis = new PrioVis(d3.select("#prioVis"), allData);
+                // var age_vis = new AgeVis(d3.select("#ageVis"), allData);
 
                 // TODO: bind the eventHandler to the Vis Objects
                 // events will be created from the CountVis object (nothing to do here)
                 // events will be consumed by the PrioVis and AgeVis object (binding should happen here)
+                console.log("checkpoint");
+
+                $(MyEventHandler).bind("selectionChanged", function(event, selectionStart, selectionEnd){
+                    age_vis.onSelectionChange(selectionStart, selectionEnd);
+                    // later on, write the prio_vis line here
+
+                    console.log("YEAH it worked");
+                 });
 
             }
 
@@ -141,12 +151,13 @@
                     *
                     * */
 
-
                     allData = _allData.map(function (d) {
                                 var res = {
                                     time: dateFormatter.parse(d.day),
                                     count: parseInt(d["count(*)"])
                                 };
+
+                                console.log(allData);
 
                                 // TODO: implement that  !!
                                 res.prios = []
@@ -158,14 +169,31 @@
 
                                 // This is ONE way to create an array of length 100
                                 // and set every value to "0")
-                                res.ages = d3.range(0,100). map(function(){return 0;})
+                                res.ages = d3.range(0,100).map(function(){return 0;}) 
 
-                                // TODO: Assign the count for each age to the index position
+                                d.age.forEach(function(a) {
+                                    // console.log("this is res.age");
+                                    // console.log(res.ages);
+
+                                    // console.log("this is res.age");
+                                    // console.log(res.ages);
+                                    if (a.age < 0) {
+                                        // do nothing
+                                        console.log("really?");
+                                    }
+                                    if (a.age > 100) {
+                                        // put this into res.ages[100]
+                                        res.ages[100] += a["count(*)"];
+                                    }
+                                    else {
+                                        res.ages[a.age] += a["count(*)"];
+                                    }  
+                                })
+
                                 // eg: res.ages[22] should contain the count value for age 22
                                 // BE AWARE THAT THE DATA MIGHT CONTAIN ages >99 which you have to handle especially
                                 // final result:
                                 // [0,0,0,..,1034,23,...] -- array length is 100
-
 
                                 return res;
                             }
@@ -174,12 +202,44 @@
                     metaData = _metaData;
                     initVis();
                 }
+
+                else {
+                    console.log("something failed");
+                }
             }
 
             var startHere = function(){
 
                 //TODO: load data here and call "dataLoaded" afterwards
                 // Hint: http://giscollective.org/d3-queue-js/
+
+                // not sure if I even need allLoaded
+                function allLoaded(perDay,meta){
+
+                    metaData = meta;
+
+                    // this will transform your data in a nicer form
+                    allData = perDay.map(function (d) {
+                                var res = {
+                                    time: dateFormatter.parse(d.day),
+                                    count: +d["count(*)"]
+                                };
+
+                                return res;
+                            }
+                    )
+
+                }
+
+                queue()
+                    .defer(d3.json, 'data/perDayData.json')
+                    .defer(d3.json, 'data/MYWorld_fields.json')
+                    
+                    .await(
+                        // dataLoaded(perDayData, metaData)
+                        dataLoaded
+                    );
+
 
                 // bind reset zoom button to a function (-- ONLY FOR BONUS --)
                 d3.select("#fitInBtn").on("click", function() {

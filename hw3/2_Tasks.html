@@ -6,6 +6,7 @@
 
     <!-- ADD Libraries-->
     <script src="libs/d3/d3.min.js" charset="utf-8"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
     <script src="libs/jquery/jquery-2.1.1.min.js" charset="utf-8"></script>
     <script src="libs/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
 
@@ -66,11 +67,21 @@
             // HINT: javascript Date objects are comparable !!
             // see: http://www.w3schools.com/js/js_date_methods.asp
 
+            console.log("this is from");
+            console.log(from);
 
+            console.log("this is to");
+            console.log(to);
 
+            allData.forEach(function(d) {
+                if (d.time >= from) {
+                    if (d.time <= to) {
+                        count = d.count + count;
+                    }
+                }
+            });
 
-
-
+            console.log(count);
 
             // after you assigned a value to the count variable
             // this function checks if your count is correct
@@ -110,21 +121,19 @@
 
         // TODO: TASK 2 A -- implement your data loading here and then call "allLoaded(perDayData, metaData)"
 
-
-
-
-
+        queue()
+            .defer(d3.json, 'data/perDayData.json')
+            .defer(d3.json, 'data/MYWorld_fields.json')
+            
+            .await(function loadFiles(error, perDayData, metaData) {
+                allLoaded(perDayData, metaData)
+            });
 
 
     })
 
 
-
-
-
 </script>
-
-
 
 
 </body>

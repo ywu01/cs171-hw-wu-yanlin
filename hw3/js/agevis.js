@@ -25,10 +25,10 @@ AgeVis = function(_parentElement, _data, _metaData){
     this.metaData = _metaData;
     this.displayData = [];
 
-
-
     // TODO: define all constants here
-
+    this.margin = {top: 20, right: 0, bottom: 30, left: 30},
+    this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
+    this.height = 400 - this.margin.top - this.margin.bottom;
 
     this.initVis();
 
@@ -42,9 +42,53 @@ AgeVis.prototype.initVis = function(){
 
     var that = this; // read about the this
 
+    // TODO: modify this to append an svg element, not modify the current placeholder SVG element
+    this.svg = this.parentElement.append("svg")
+        .attr("width", this.width + this.margin.left + this.margin.right)
+        .attr("height", this.height + this.margin.top + this.margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-    //TODO: construct or select SVG
-    //TODO: create axis and scales
+    // creates axis and scales
+    this.x = d3.time.scale()
+      .range([0, this.width]);
+
+    this.y = d3.scale.linear()
+      .range([this.height, 0]);
+
+    this.xAxis = d3.svg.axis()
+      .scale(this.x)
+      .orient("bottom");
+
+    this.yAxis = d3.svg.axis()
+      .scale(this.y)
+      .orient("left");
+
+
+      // ALL I NEED TO WORK ON IS THIS..AND SOMETHING ELSE LATER
+
+    this.area = d3.svg.area()
+      .interpolate("monotone")
+
+      .x1(function(d) { return that.x(d); })
+      .y(function(d, i) { return that.y(i); });
+
+
+
+
+    // Add axes visual elements
+    this.svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + this.height + ")")
+
+    this.svg.append("g")
+        .attr("class", "y axis")
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Count? You might want to find out what this is.");
 
     // filter, aggregate, modify data
     this.wrangleData(null);
@@ -68,10 +112,6 @@ AgeVis.prototype.wrangleData= function(_filterFunction){
     //// the default is: var options = {filter: function(){return true;} }
     //var options = _options || {filter: function(){return true;}};
 
-
-
-
-
 }
 
 
@@ -86,6 +126,41 @@ AgeVis.prototype.updateVis = function(){
     // But it's not needed to solve the task.
     // var options = _options || {};
 
+    // TODO: implement update graphs (D3: update, enter, exit)
+    // updates scales
+
+    // AND THIS. DO THIS AND WE'RE GOLDEN.
+
+    this.x.domain(d3.extent(this.displayData, function(d) { return 10; }));
+    this.y.domain(d3.extent(this.displayData, function(d) { return 10; }));
+
+
+
+
+
+
+
+    // updates axis
+    this.svg.select(".x.axis")
+        .call(this.xAxis);
+
+    this.svg.select(".y.axis")
+        .call(this.yAxis)
+
+    // updates graph
+    var path = this.svg.selectAll(".area")
+      .data([this.displayData])
+
+    path.enter()
+      .append("path")
+      .attr("class", "area");
+
+    path
+      .transition()
+      .attr("d", this.area);
+
+    path.exit()
+      .remove();
 
     // TODO: implement...
     // TODO: ...update scales
@@ -102,14 +177,24 @@ AgeVis.prototype.updateVis = function(){
  * @param selection
  */
 AgeVis.prototype.onSelectionChange= function (selectionStart, selectionEnd){
+    // let's create a filter here; we're going to load that filter into the wrangle function
+
+    var filterByDate = function(object) {
+        if (object.time > selectionStart && object.time < selectionEnd) {
+            return true;
+        }
+        else {
+            return false; 
+        }
+    }
 
     // TODO: call wrangle function
-
+    this.wrangleData(filterByDate);
+    
     this.updateVis();
 
 
 }
-
 
 /*
 *
@@ -118,8 +203,6 @@ AgeVis.prototype.onSelectionChange= function (selectionStart, selectionEnd){
 * ==================================
 *
 * */
-
-
 
 /**
  * The aggregate function that creates the counts for each age for a given filter.
@@ -145,11 +228,29 @@ AgeVis.prototype.filterAndAggregate = function(_filter){
         return 0;
     });
 
+    console.log("This is THIS");
+    console.log(this.data);
+    console.log("This is FILTER");
+    console.log(filter);
 
+    filteredInfo = this.data.filter(filter);
+    console.log("This is FILTERED INFO");
+    console.log(filteredInfo);
     // accumulate all values that fulfill the filter criterion
 
-    // TODO: implement the function that filters the data and sums the values
+    console.log(res);
 
+    // TODO: implement the function that filters the data and sums the values
+    filteredInfo.forEach(function(a) {
+        for (var i = a.ages.length - 1; i >= 0; i--) {
+            if (isNaN(a.ages[i]) == false){
+                res[i] = res[i] + a.ages[i];
+            }
+        };
+    });
+
+    console.log("this is res");
+    console.log(res);
 
 
     return res;
