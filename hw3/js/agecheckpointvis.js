@@ -1,6 +1,22 @@
+/**
+ * Created by Hendrik Strobelt (hendrik.strobelt.com) on 1/28/15.
+ */
+ 
+/*
+ *
+ * ======================================================
+ * We follow the vis template of init - wrangle - update
+ * ======================================================
+ *
+ * */
 
-
-
+/**
+ * AgeVis object for HW3 of CS171
+ * @param _parentElement -- the HTML or SVG element (D3 node) to which to attach the vis
+ * @param _data -- the data array
+ * @param _metaData -- the meta-data / data description object
+ * @constructor
+ */
 AgeVis = function(_parentElement, _data, _metaData){
     this.parentElement = _parentElement;
     this.data = _data;

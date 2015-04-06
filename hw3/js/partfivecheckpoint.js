@@ -8,7 +8,7 @@ PrioVis = function(_parentElement, _data, _metaData){
     this.displayData = [];
 
     // TODO: define all constants here
-    this.margin = {top: 20, right: 0, bottom: 120, left: 50},
+    this.margin = {top: 20, right: 0, bottom: 75, left: 50},
     this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
     this.height = 400 - this.margin.top - this.margin.bottom;
 
@@ -109,7 +109,7 @@ PrioVis.prototype.updateVis = function(){
         .selectAll("text")
         .style("text-anchor", "end")
         .attr("transform", function(d) {
-          return "rotate(-30) translate(0, 0)";
+          return "rotate(-30) translate(0, -15)";
         });
         // you'd select text right here and rotate it
 
@@ -119,6 +119,8 @@ PrioVis.prototype.updateVis = function(){
     // Data join
     var bar = this.svg.selectAll(".bar")
       .data(this.displayData);
+
+    // "translate(0," + that.x(that.metaData.priorities[5]["item-title"]) + ")"
 
     // Append new bar groups, if required
     var bar_enter = bar.enter().append("g");
@@ -131,8 +133,6 @@ PrioVis.prototype.updateVis = function(){
       .attr("class", "bar")
       .transition()
       .attr("transform", function(d, i) { return "translate(" + that.x(i) + ",0)"; })
-
-
 
     // Remove the extra bars
     bar.exit()
@@ -148,7 +148,6 @@ PrioVis.prototype.updateVis = function(){
         // console.log(that.coloring[i]);
         return that.coloring[i];
       })
-
       .transition()
       // .attr("fill-opacity", "0.5")
       .attr("height", function(d, i) {

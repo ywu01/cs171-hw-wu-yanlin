@@ -44,14 +44,6 @@ CountVis.prototype.initVis = function(){
 
     var that = this; // read about the this
 
-    //TODO: implement here all things that don't change
-    //TODO: implement here all things that need an initial status
-    // Examples are:
-    // - construct SVG layout
-    // - create axis
-    // -  implement brushing !!
-    // --- ONLY FOR BONUS ---  implement zooming
-
     // TODO: modify this to append an svg element, not modify the current placeholder SVG element
     this.svg = this.parentElement.append("svg")
         .attr("width", this.width + this.margin.left + this.margin.right)
@@ -82,7 +74,6 @@ CountVis.prototype.initVis = function(){
 
     this.brush = d3.svg.brush()
       .on("brush", function(d){
-        console.log(that.brush.extent());
         $(that.eventHandler).trigger("selectionChanged", that.brush.extent());
       });
 
@@ -93,12 +84,13 @@ CountVis.prototype.initVis = function(){
 
     this.svg.append("g")
         .attr("class", "y axis")
+        .attr("transform", "translate(15,0)")
       .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Count? You might want to find out what this is.");
+        .text("THIS IS...COUNTVIS");
 
     this.svg.append("g")
       .attr("class", "brush");
@@ -215,10 +207,6 @@ CountVis.prototype.addSlider = function(svg){
         var value = Math.max(0, Math.min(200,d3.event.y));
 
         var sliderValue = sliderScale.invert(value);
-
-        // TODO: do something here to deform the y scale
-        console.log("Y Axis Slider value: ", sliderValue);
-
 
         d3.select(this)
             .attr("y", function () {

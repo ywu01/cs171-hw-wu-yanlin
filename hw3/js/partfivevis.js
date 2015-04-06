@@ -1,7 +1,22 @@
+/**
+ * Created by Hendrik Strobelt (hendrik.strobelt.com) on 1/28/15.
+ */
 
+/*
+ *
+ * ======================================================
+ * We follow the vis template of init - wrangle - update
+ * ======================================================
+ *
+ * */
 
-
-AgeVis = function(_parentElement, _data, _metaData){
+/**
+ * @param _parentElement -- the HTML or SVG element (D3 node) to which to attach the vis
+ * @param _data -- the data array
+ * @param _metaData -- the meta-data / data description object
+ * @constructor
+ */
+FiveVis = function(_parentElement, _data, _metaData){
     this.parentElement = _parentElement;
     this.data = _data;
     this.metaData = _metaData;
@@ -20,7 +35,7 @@ AgeVis = function(_parentElement, _data, _metaData){
 /**
  * Method that sets up the SVG and the variables
  */
-AgeVis.prototype.initVis = function(){
+FiveVis.prototype.initVis = function(){
 
     var that = this; // read about the this
 
@@ -59,9 +74,9 @@ AgeVis.prototype.initVis = function(){
       .y(function(d, i) { return that.y(i); });
 
     // Add axes visual elements
-    this.svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + this.height + ")")
+    // this.svg.append("g")
+    //     .attr("class", "notaregularaxis")
+    //     .attr("transform", "translate(0," + this.height + ")");
 
     this.svg.append("g")
         .attr("class", "y axis")
@@ -70,7 +85,7 @@ AgeVis.prototype.initVis = function(){
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("THIS IS...AGEVIS");
+        .text("THIS IS...FIVEVIS");
 
     // filter, aggregate, modify data
     this.wrangleData(null);
@@ -84,7 +99,7 @@ AgeVis.prototype.initVis = function(){
  * Method to wrangle the data. In this case it takes an options object
  * @param _filterFunction - a function that filters data or "null" if none
  */
-AgeVis.prototype.wrangleData= function(_filterFunction){
+FiveVis.prototype.wrangleData= function(_filterFunction){
 
     // displayData should hold the data which is visualized
     this.displayData = this.filterAndAggregate(_filterFunction);
@@ -99,7 +114,7 @@ AgeVis.prototype.wrangleData= function(_filterFunction){
 /**
  * the drawing function - should use the D3 selection, enter, exit
  */
-AgeVis.prototype.updateVis = function(){
+FiveVis.prototype.updateVis = function(){
 
     // Dear JS hipster,
     // you might be able to pass some options as parameter _option
@@ -125,7 +140,17 @@ AgeVis.prototype.updateVis = function(){
 
     path.enter()
       .append("path")
-      .attr("class", "area");
+      .attr("class", "area")
+      .style("fill", "steelblue")
+      .attr("fill-opacity", "0.5");
+      // .attr("fill", "steelblue") works as well
+
+    path.enter() 
+        .append("path")
+        .attr("class", "fixedArea")
+        .style("fill", "red")
+        .attr("fill-opacity", "0.5");
+
 
     path
       .transition()
@@ -144,7 +169,7 @@ AgeVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
-AgeVis.prototype.onSelectionChange= function (selectionStart, selectionEnd){
+FiveVis.prototype.onSelectionChange= function (selectionStart, selectionEnd){
     // let's create a filter here; we're going to load that filter into the wrangle function
 
     // console.log("woot woot checkpointtt");
@@ -179,7 +204,7 @@ AgeVis.prototype.onSelectionChange= function (selectionStart, selectionEnd){
  * @param _filter - A filter can be, e.g.,  a function that is only true for data of a given time range
  * @returns {Array|*}
  */
-AgeVis.prototype.filterAndAggregate = function(_filter){
+FiveVis.prototype.filterAndAggregate = function(_filter){
 
 
     // Set filter to a function that accepts all items
@@ -226,4 +251,7 @@ AgeVis.prototype.filterAndAggregate = function(_filter){
     return res;
 
 }
+
+
+
 

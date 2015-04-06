@@ -47,6 +47,12 @@ TypeVis.prototype.initVis = function(){
       .rangeRoundBands([0, this.height], .1);
 
     this.color = d3.scale.category20();
+    // look at metadata; this.metadata; console log that, see how it's structured.
+    // look at metadata.prios; explore, find color and categories. 
+    // you can get color directly from metadata. 
+    // use index! metadata.prios[i].color...etc. 
+    // "instead of .attribute, it's .text"
+    // THIS IS FOR LABELS AND COLORS
 
     this.xAxis = d3.svg.axis()
       .scale(this.x)
@@ -102,13 +108,11 @@ TypeVis.prototype.updateVis = function(){
     // updates scales
     this.x.domain(d3.extent(this.displayData, function(d) { return d.count; }));
     this.y.domain(this.displayData.map(function(d) { return d.type; }));
-    this.color.domain(this.displayData.map(function(d) { return d.type }));
+    this.color.domain(this.displayData.map(function(d) {console.log(d.type); return d.type }));
 
     // updates axis
     this.svg.select(".x.axis")
         .call(this.xAxis);
-
-    // updates graph
 
     // Data join
     var bar = this.svg.selectAll(".bar")
@@ -143,6 +147,7 @@ TypeVis.prototype.updateVis = function(){
       .attr("y", 0)
       .attr("height", this.y.rangeBand())
       .style("fill", function(d,i) {
+        console.log(that.color(d.type));
         return that.color(d.type);
       })
       .transition()
@@ -216,6 +221,8 @@ TypeVis.prototype.filterAndAggregate = function(_filter){
           c.type in counts ? counts[c.type]++ : counts[c.type] = 1;
         });
       });
+
+      // when aggregating for priovis, aggregate like age except for sixteen categories/priorities.
 
     // Convert counts to an array and keep only the top 10
     counts = Object.keys(counts)

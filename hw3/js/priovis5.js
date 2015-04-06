@@ -1,7 +1,7 @@
 
 
 
-PrioVis = function(_parentElement, _data, _metaData){
+PrioVis5 = function(_parentElement, _data, _metaData){
     this.parentElement = _parentElement;
     this.data = _data;
     this.metaData = _metaData;
@@ -27,7 +27,7 @@ PrioVis = function(_parentElement, _data, _metaData){
 /**
  * Method that sets up the SVG and the variables
  */
-PrioVis.prototype.initVis = function(){
+PrioVis5.prototype.initVis = function(){
 
     var that = this; // read about the this
 
@@ -84,7 +84,7 @@ PrioVis.prototype.initVis = function(){
  * Method to wrangle the data. In this case it takes an options object
  * @param _filterFunction - a function that filters data or "null" if none
  */
-PrioVis.prototype.wrangleData= function(_filterFunction){
+PrioVis5.prototype.wrangleData= function(_filterFunction){
 
     // displayData should hold the data which is visualized
     this.displayData = this.filterAndAggregate(_filterFunction);
@@ -94,7 +94,7 @@ PrioVis.prototype.wrangleData= function(_filterFunction){
 /**
  * the drawing function - should use the D3 selection, enter, exit
  */
-PrioVis.prototype.updateVis = function(){
+PrioVis5.prototype.updateVis = function(){
 
     var that = this;
 
@@ -132,7 +132,13 @@ PrioVis.prototype.updateVis = function(){
       .transition()
       .attr("transform", function(d, i) { return "translate(" + that.x(i) + ",0)"; })
 
-
+    // this chunk of code makes all the magic happen
+    bar
+      .attr("class", "differentBar")
+      .transition()
+      .attr("transform", function(d, i) { return "translate(" + that.x(i) + ",0)"; })
+      .style("fill", "steelblue")
+      .attr("fill-opacity", "0.25");
 
     // Remove the extra bars
     bar.exit()
@@ -164,7 +170,7 @@ PrioVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
-PrioVis.prototype.onSelectionChange= function (selectionStart, selectionEnd){
+PrioVis5.prototype.onSelectionChange= function (selectionStart, selectionEnd){
     // let's create a filter here; we're going to load that filter into the wrangle function
 
     // console.log("woot woot checkpointtt PRIOVIS version");
@@ -188,7 +194,7 @@ PrioVis.prototype.onSelectionChange= function (selectionStart, selectionEnd){
 
 }
 
-PrioVis.prototype.filterAndAggregate = function(_filter){
+PrioVis5.prototype.filterAndAggregate = function(_filter){
 
 
     // Set filter to a function that accepts all items

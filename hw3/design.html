@@ -24,6 +24,7 @@
 
     <!-- add own vis classes-->
     <script src = "js/priovis.js"></script>
+    <script src = "js/priovis5.js"></script>
     <script src = "js/agevis.js"></script>
     <script src = "js/countvis.js"></script>
     <script src = "js/partfivevis.js"></script>
@@ -45,30 +46,70 @@
 </head>
 <body>
     <div class="container">
-        <h1>Homework 3, Main Implementation - MyWorld 2015 Data Visualization</h1>
-
+        <br>
+        <h1>Part Five - MyWorld 2015, Design Studio</h1>
+        <br>
         <div class="row">
-            <div class="col-md-8 col-sm-12">
-               <p> This is the original file, with the implementations from parts one through three. If you want part five, my design implementation (with a clean-looking page), look at the alternative design.html in my homework 3 filter.</p>
+            <div>
+               <p> I've got two major changes here; the first is an additional view for ageVis, the second is an agumented view for prioVis. I'll explain each portion of this page as they come along.</p>
             </div>
 
         </div>
 
         <div class="row">
-            <div class="col-md-8" id="countVis">
-                <!-- TODO: delete placeholder svg element -->
-
+            <div>
+                <strong>AGE VISUALIZATION</strong>
             </div>
-            <div class="col-md-4" id="ageVis">
+        </div>
+
+        <div>
+               <p> Here's two versions of ageVis; the first you already know, the second you haven't seen before. It has an unchanging layer in red (shown as pink on screen), and a changing layer underneath in blue. Whenever the brush gets dragged on countVis, below, the blue layer changes and you can compare the composition of ages from the MyWorld survey as a whole and from just the brushed selection. Whenever the blue is underneath, you'll know that there's less of the particular age than in general; whenever the blue is over, you'll know that it's more.</p>
+        </div>
+        <div class="row">
+            <div class="col-md-6" id="ageVis">
                 <!-- TODO: delete placeholder svg element -->
                 
             </div>
+            <div class="col-md-6" id="fiveVis">
+                <!-- TODO: delete placeholder svg element -->
+            </div>
         </div>
 
+        <div class="row">
+            <div>
+                <strong>COUNT VISUALIZATION</strong>
+            </div>
+        </div>
+        <div>
+               <p> You've seen this before; it's the regular countViz portion. In here, you can select the time range for which you want to see info.</p>
+        </div>
+        <div class="row">
+            <div class="col-md-12" id="countVis">
+                <!-- TODO: delete placeholder svg element -->
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+                <strong>PRIORITY VISUALIZATION</strong>
+            </div>
+        </div>
+        <div>
+               <p> Of all the changes I've made in the design document, this is the most dramatic. In addition to a different transition than before, this new prioVis allows you to view the general relevance of priorities in a given time range. 
+                <br><br>
+               Let's say that you want to see how much people care about issues in the winter months, from December to February; you'd take the brush from countVis (of any size), and you'd brush back and forth from December to February. Layers of light opacity will settle on the priorities accordingly; you'll end up seeing some bars completely shaded solid, and others with a faded rectangle up at the top. The intensity of color, as well as the height of the bars, will give you a general sense of how important the issues are for that given time range in a more detailed manner than simply solid bars.
+               </p>
+        </div>
         <div class="row">
             <div class="col-md-12" id="prioVis">
                 <!-- TODO: delete placeholder svg element -->
             </div>
+        </div>
+        <div>
+               <p> 
+               One thing to note is that you'll need to refresh everytime in order to make this work; otherwise, you won't be able to see the effects of the overlapping bars. For example, if you were previously playing around with ageVis, you'll have to refresh before you can see the aforementioned effects.
+               </p>
         </div>
 
 
@@ -107,11 +148,13 @@
                 // instantiates all Vis Objects here
                 var count_vis = new CountVis(d3.select("#countVis"), allData, metaData, MyEventHandler);
                 var age_vis = new AgeVis(d3.select("#ageVis"), allData, metaData);
-                var prio_vis = new PrioVis(d3.select("#prioVis"), allData, metaData);
+                var five_vis = new FiveVis(d3.select("#fiveVis"), allData, metaData);
+                var prio_vis5 = new PrioVis5(d3.select("#prioVis"), allData, metaData);
 
                 $(MyEventHandler).bind("selectionChanged", function(event, selectionStart, selectionEnd){
                     age_vis.onSelectionChange(selectionStart, selectionEnd);
-                    prio_vis.onSelectionChange(selectionStart, selectionEnd);
+                    five_vis.onSelectionChange(selectionStart, selectionEnd);
+                    prio_vis5.onSelectionChange(selectionStart, selectionEnd);
                     // later on, write the prio_vis line here
 
                     // console.log("YEAH eventhandler worked");
@@ -246,4 +289,3 @@
     </script>
 </body>
 </html>
-
