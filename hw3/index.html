@@ -71,28 +71,15 @@
             </div>
         </div>
 
-
-
     </div>
-
-
 
     <script>
         $(function(){ // this function is called after the HTML document is fully loaded
-
-
-            //==========================================
-            //--- HERE IS WHERE ALL THE MAGIC STARTS --
-            //==========================================
-
 
             // variables keeping global knowledge of the data
             var allData = [];
             var metaData = {};
 
-            // this function can convert Date objects to a string
-            // it can also convert strings to Date objects
-            // see: https://github.com/mbostock/d3/wiki/Time-Formatting
             var dateFormatter = d3.time.format("%Y-%m-%d");
 
 
@@ -153,13 +140,6 @@
                                 // [10,200,500,... ]
 
                                 res.prios[0] = res.prios[0] + d["sum(p0)"];
-                                // for (var i = 16 - 1; i >= 0; i--) {
-                                //     var newstring = "\"sum(p" + i + ")\"";
-                                //     var otherstring = "sum(p1)";
-                                //     console.log(newstring);
-                                //     // res.prios[i] = res.prios[i] + d[newstring];
-                                //     console.log(d[newstring]);
-                                // };
 
                                 res.prios[1] = res.prios[1] + d["sum(p1)"];
                                 res.prios[2] = res.prios[2] + d["sum(p2)"];

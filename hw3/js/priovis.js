@@ -53,6 +53,7 @@ PrioVis.prototype.initVis = function(){
       })
       .orient("bottom");
 
+    // I don't think you need this?
     this.yAxis = d3.svg.axis()
       .scale(this.y)
       .orient("left");

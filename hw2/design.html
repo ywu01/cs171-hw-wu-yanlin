@@ -407,13 +407,15 @@ For increased visibility, there is an option to make the other circles disappear
 
     d3.select("input[value=\"default\"]").on("click", showByDefault);
     
-    d3.select("input[value=\"populationGDP\"]").on("click", showByPopulationAndGDP);
+    // I previously did not comment this out. Apparently this has issues on Chrome but not on Firefox.
 
-    d3.select("input[value=\"GDPpouplation\"]").on("click", showByGDPAndPopulation);
+    // // d3.select("input[value=\"populationGDP\"]").on("click", showByPopulationAndGDP);
 
-    d3.select("input[value=\"life_expectancyGDP\"]").on("click", showByLifeExpectancyAndGDP);
+    // // d3.select("input[value=\"GDPpouplation\"]").on("click", showByGDPAndPopulation);
 
-    d3.select("input[value=\"latlong\"]").on("click", showByLatAndLong);
+    // d3.select("input[value=\"life_expectancyGDP\"]").on("click", showByLifeExpectancyAndGDP);
+
+    // d3.select("input[value=\"latlong\"]").on("click", showByLatAndLong);
 
     d3.select("input[value=\"singlePoint\"]").on("click", singlePoint);
 

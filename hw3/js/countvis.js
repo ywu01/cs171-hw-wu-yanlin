@@ -98,7 +98,6 @@ CountVis.prototype.initVis = function(){
     //TODO: implement the slider -- see example at http://bl.ocks.org/mbostock/6452972
     // this.addSlider(this.svg)
 
-
     // filter, aggregate, modify data
     this.wrangleData();
 
